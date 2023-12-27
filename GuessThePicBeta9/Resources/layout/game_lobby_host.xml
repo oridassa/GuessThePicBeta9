@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    >
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Game PIN"
+        android:textSize="25sp"
+    />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="123456"
+        android:textSize="50sp"
+        android:id="@+id/gameidview"
+	/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Players:"
+        android:textSize="25sp"
+    />
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/list123"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:gravity="center|bottom"
+        android:orientation="vertical"
+        >
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="Quit to main menu"
+            android:id="@+id/quit"
+            android:onClick="onClick"
+        />
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:gravity="center"
+            android:text="Insert photos"
+            android:id="@+id/insertphotos"
+            android:onClick="onClick"
+        />
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:text="Start Game"
+            android:onClick="onClick"
+            android:id="@+id/startGameButton"
+            android:visibility="gone"
+            />
+    </LinearLayout>
+</LinearLayout>
