@@ -5,6 +5,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Java.Lang;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,8 +27,15 @@ namespace GuessThePicBeta9
                     instance = new GameEngine();
                 return instance;
             }
-
-           
         }
+        public static void DeleteInstance()
+        {
+            instance = null;
+        }
+        public static void SetInstance(GameEngine obj)
+        {
+            instance = obj;
+        }
+
     }
 }

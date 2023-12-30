@@ -31,5 +31,9 @@ namespace GuessThePicBeta9
                 CurrentPlayer.CreatePlayer(player);
             }
         }
+        public static void DeletePlayerInstance()
+        {
+            playerPointer = null;
+        }
     }
 }

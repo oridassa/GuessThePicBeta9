@@ -82,6 +82,7 @@ namespace GuessThePicBeta9
         }
         public void FinishGame()
         {
+            if (CurrentPlayer.playerPointer.isAdmin) FirebaseActions.KillLobby();
             Android.Content.Intent intent = new Android.Content.Intent(this, typeof(MainActivity));
             base.StartActivity(intent);
         }

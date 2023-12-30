@@ -19,6 +19,7 @@ namespace GuessThePicBeta9
         public int CurrentImageIndex {  get; private set; }
         public IList<Player> Players {  get; private set; } 
         public string ID { get; set; }
+
         public GameEngine() 
         {
             this.ImageList = new List<Image>();

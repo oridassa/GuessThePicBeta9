@@ -7,7 +7,9 @@ using Android.Widget;
 using Org.Apache.Http.Conn;
 using Plugin.Media;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
 
@@ -25,7 +27,7 @@ namespace GuessThePicBeta9
         private Player currentPlayer;
         private string gameid;
 
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.game_lobby_host);
@@ -37,20 +39,27 @@ namespace GuessThePicBeta9
             startGameButton = FindViewById<Button>(Resource.Id.startGameButton);
 
             startGameButton.Visibility = DetermineIfHost();
-            
 
-
-            string[] arr = "just,a,test".Split(',');
-            ArrayAdapter<string> adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, arr);
-            listView.Adapter = adapter;
-
-            
             if (currentPlayer.isAdmin)
             {
                 gameEngine = GameEngineSingleton.GetInstance();
                 gameInitiator = new GameInitiator();
+                GenerateGameID();
+                await FirebaseActions.GameSetup(gameEngine.ID, gameEngine);
             }
-                
+            else
+            {
+                gameEngine = await FirebaseActions.GetGameEngine();
+                this.gameidview.Text = gameEngine.ID.ToString();
+            }
+
+            SetPlayersList();
+        }
+        public async void SetPlayersList()
+        {
+            string[] arr = await FirebaseActions.GetPlayerNamesArray();
+            ArrayAdapter<string> adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, arr);
+            listView.Adapter = adapter;
         }
 
         public override void OnRequestPermissionsResult(int requestCode,
@@ -67,9 +76,12 @@ namespace GuessThePicBeta9
             Button b = (Button)v;
             if (b.Text == "Quit to main menu")
             {
-                //EndGame();
+                if (currentPlayer.isAdmin) KillLobby();
+                GameEngineSingleton.DeleteInstance();
+                CurrentPlayer.DeletePlayerInstance();
                 intent = new Intent(this, typeof(MainActivity));
                 base.StartActivity(intent);
+                
             }
             else if (b.Text == "Insert photos")
             {
@@ -85,17 +97,21 @@ namespace GuessThePicBeta9
                 StartGame();
             }
         }
+
+
+
         private async Task<bool> PickImage()
         {
-            if(currentPlayer.isAdmin)
-                return await PicImageHost();
-            return await PickImageUser();
-        }
+            Image img = await PickImageFromPhone();
+            if (img == null) return false;
+            if (currentPlayer.isAdmin)
+            {
+                ImageManagmentHost(img);
+                return true;
+            }
+            ImageManagmentPlayer(img);
+            return true;
 
-        private async Task<bool> PickImageUser()
-        {
-            //TODO: Add the picture to firebase so the host device will add it to the gameEngine object
-            throw new NotImplementedException();
 
         }
 
@@ -123,7 +139,39 @@ namespace GuessThePicBeta9
             }
             return false;
         }
+        public void ImageManagmentHost(Image img)
+        {
+            if (img == null) return;
+            this.gameEngine.AddImage(img);
+        }
+        public void ImageManagmentPlayer(Image img)
+        {
+            if (img == null) return;
+                
+        }
+        public async Task<Image> PickImageFromPhone()
+        {
+            await CrossMedia.Current.Initialize();
 
+            if (!CrossMedia.Current.IsPickPhotoSupported)
+            {
+                Toast.MakeText(this, $"pick another photo", ToastLength.Short).Show();
+                return null;
+            }
+            var file = await CrossMedia.Current.PickPhotoAsync(new Plugin.Media.Abstractions.PickMediaOptions
+            {
+                PhotoSize = Plugin.Media.Abstractions.PhotoSize.Full
+            });
+            if (file != null)
+            {
+                byte[] bytes = File.ReadAllBytes(file.Path);
+                if (bytes.Length > 0)
+                {
+                    return new Image(bytes, currentPlayer.name);
+                }
+            }
+            return null;
+        }
 
         private ViewStates DetermineIfHost()//if player is host there will be a button to start the game, else, there would not be
         {
@@ -136,7 +184,7 @@ namespace GuessThePicBeta9
         {
 
         }
-        public void StartGame()
+        public async void StartGame()
         {
             Intent intent;
 
@@ -156,9 +204,12 @@ namespace GuessThePicBeta9
         public void GenerateGameID()
         {
             string id = gameInitiator.GetNewGameID();
-            this.gameidview.Text = id;
             this.gameEngine.ID = id;
+            this.gameidview.Text = id;
         }
-
+        private void KillLobby()
+        {
+            FirebaseActions.KillLobby();
+        }
     }
 }
