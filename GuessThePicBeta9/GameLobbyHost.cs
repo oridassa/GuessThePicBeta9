@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
 
@@ -27,6 +28,8 @@ namespace GuessThePicBeta9
         private Player currentPlayer;
         private string gameid;
 
+        private Thread changes;
+        private bool stopThread = false;
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -54,12 +57,15 @@ namespace GuessThePicBeta9
             }
 
             SetPlayersList();
+            //CheckForChanges();
         }
+
         public async void SetPlayersList()
         {
             string[] arr = await FirebaseActions.GetPlayerNamesArray();
             ArrayAdapter<string> adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, arr);
             listView.Adapter = adapter;
+            FirebaseActions.SubscribeTothePlayersList(SetPlayersList);
         }
         public void SetPlayersList(string[] arr) //override to send to the event listener
         {
@@ -82,15 +88,14 @@ namespace GuessThePicBeta9
             if (b.Text == "Quit to main menu")
             {
                 if (currentPlayer.isAdmin)
-                    KillLobby();
+                    await KillLobby();
                 else
                     FirebaseActions.ExitFromLobby(currentPlayer);
-                    
+                StopListeningForChanges();
                 GameEngineSingleton.DeleteInstance();
                 CurrentPlayer.DeletePlayerInstance();
                 intent = new Intent(this, typeof(MainActivity));
                 base.StartActivity(intent);
-                
             }
             else if (b.Text == "Insert photos")
             {
@@ -101,6 +106,7 @@ namespace GuessThePicBeta9
             }
             else if (b.Text == "Start Game")
             {
+                StopListeningForChanges();
                 //host wants to start the game
                 FirebaseActions.UploadGamesEngine(gameEngine);
                 StartGame();
@@ -220,9 +226,30 @@ namespace GuessThePicBeta9
             this.gameEngine.ID = id;
             this.gameidview.Text = id;
         }
-        private void KillLobby()
+        private async Task<bool> KillLobby()
         {
-            FirebaseActions.KillLobby();
+            return await FirebaseActions.KillLobby();
         }
+
+        private async void CheckForChanges()
+        {
+            while (!stopThread)
+            {
+                Thread.Sleep(100);
+                if(!stopThread)
+                SetPlayersList();
+                bool isGameStarted = await FirebaseActions.IsGameStarted();
+                if (isGameStarted)
+                {
+                    StartGame();
+                }
+            }
+        }
+        public void StopListeningForChanges()
+        {
+            this.stopThread = true;
+            Thread.Sleep(500);
+        }
+
     }
 }

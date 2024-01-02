@@ -52,10 +52,11 @@ namespace GuessThePicBeta9
                 .Child($"{CurrentPlayer.playerPointer.name}")
                 .PostAsync<Image>(img);
         }
-        public static async void KillLobby()
+        public static async Task<bool> KillLobby()
         {
             await pointer.DeleteAsync();
             pointer = null;
+            return true;
         }
         public static async Task<bool> IsGameOnline(string gameID)
         {
@@ -134,6 +135,7 @@ namespace GuessThePicBeta9
         {
             ExitFromLobby(player.name);
         }
+        
         public static async void DeletePicturesFromLobby(string name)
         {
             await pointer
@@ -141,6 +143,23 @@ namespace GuessThePicBeta9
                 .Child($"{name}")
                 .DeleteAsync();
         }
-
+        public static void SubscribeTothePlayersList(Action<string[]> setPlayersList)
+        {
+            pointer
+                .Child("GameEngine")
+                .Child("Players")
+                .AsObservable<Dictionary<string, Player>>()
+                .Subscribe(players =>
+                {
+                    string[] arr = players.Object.Keys.ToArray();
+                    setPlayersList(arr);
+                });
+        }
+        public static async Task<bool> IsGameStarted()
+        {
+            return await pointer
+                .Child("GameStarted")
+                .OnceSingleAsync<bool>();
+        }
     }
 }

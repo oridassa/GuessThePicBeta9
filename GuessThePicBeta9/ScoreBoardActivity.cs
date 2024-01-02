@@ -80,9 +80,9 @@ namespace GuessThePicBeta9
                 base.StartActivity(intent);
             }
         }
-        public void FinishGame()
+        public async void FinishGame()
         {
-            if (CurrentPlayer.playerPointer.isAdmin) FirebaseActions.KillLobby();
+            if (CurrentPlayer.playerPointer.isAdmin) await FirebaseActions.KillLobby();
             Android.Content.Intent intent = new Android.Content.Intent(this, typeof(MainActivity));
             base.StartActivity(intent);
         }

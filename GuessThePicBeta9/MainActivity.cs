@@ -18,16 +18,22 @@ namespace GuessThePicBeta9
         private EditText nameInput;
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            base.OnCreate(savedInstanceState);
-            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
-            // Set our view from the "main" layout resource
-            SetContentView(Resource.Layout.activity_main);
+            try
+            {
+                base.OnCreate(savedInstanceState);
+                Xamarin.Essentials.Platform.Init(this, savedInstanceState);
+                // Set our view from the "main" layout resource
+                SetContentView(Resource.Layout.activity_main);
 
+                Button btn = FindViewById<Button>(Resource.Id.check);
+                btn.Click += RequestPrem;
 
-            Button btn = FindViewById<Button>(Resource.Id.check);
-            btn.Click += RequestPrem;
-
-            nameInput = FindViewById<EditText>(Resource.Id.name);
+                nameInput = FindViewById<EditText>(Resource.Id.name);
+            } catch (Exception e)
+            {
+                Toast.MakeText(this, e.Message, ToastLength.Short).Show();
+            }
+            
         }
         private async void RequestPrem(object sender, EventArgs e) //checks if the user gives the app premission to use his pictures. 
         {                                 
