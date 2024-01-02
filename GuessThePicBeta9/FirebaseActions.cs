@@ -1,13 +1,16 @@
 ﻿using Android.App.AppSearch;
 using Android.Locations;
+using Android.Media;
 using Firebase.Database;
 using Firebase.Database.Query;
+using Java.Lang;
 using Java.Util;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace GuessThePicBeta9
 {
@@ -44,7 +47,10 @@ namespace GuessThePicBeta9
         public static async void UploadImageUser(Image img)
         {
             //TODO: Add img to a static location at the firebase database where the host could add the pic to the game engine
-            await pointer.Child("UsersPictures").PostAsync<Image>(img);
+            await pointer
+                .Child("UsersPictures")
+                .Child($"{CurrentPlayer.playerPointer.name}")
+                .PostAsync<Image>(img);
         }
         public static async void KillLobby()
         {
@@ -77,7 +83,7 @@ namespace GuessThePicBeta9
                     keys.Add(property.Name);
                 }
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 Console.WriteLine($"Error parsing JSON: {ex.Message}");
             }
@@ -91,34 +97,50 @@ namespace GuessThePicBeta9
         }
         public static async void AddPlayerToLobby(Player player)
         {
-            int indexOfNewPlayer = await GetLastIndexOfPlayer();
             await pointer
                 .Child("GameEngine")
                 .Child("Players")
-                .Child($"{indexOfNewPlayer + 1}")
+                .Child($"{player.name}")
                 .PutAsync<Player>(player);
         }
-        public static async Task<List<Player>> GetPlayersList()
+        public static async Task<Dictionary<string, Player>> GetPlayersList()
         {
-            List<Player> lst = await pointer
+            Dictionary<string, Player> lst = await pointer
                         .Child("GameEngine")
-                        .Child("Players").OnceSingleAsync<List<Player>>();
+                        .Child("Players").OnceSingleAsync<Dictionary<string, Player>>();
             return lst;
         }
-        public static async Task<int> GetLastIndexOfPlayer() //returns the index of the last player who joined a game
-        {
-            List<Player> lst = await GetPlayersList();
-            return lst.Count() - 1;
-        }
+        //public static async Task<int> GetLastIndexOfPlayer() //returns the index of the last player who joined a game
+        //{
+        //    List<Player> lst = await GetPlayersList();
+        //    return lst.Count() - 1;
+        //}
         public static async Task<string[]> GetPlayerNamesArray()
         {
-            List<Player> players = await GetPlayersList();
-            List<string> playersNames = new List<string>();
-            foreach (Player player in players)
-            {
-                playersNames.Add(player.name);
-            }
-            return playersNames.ToArray();
+            Dictionary<string, Player> players = await GetPlayersList();
+            
+            return players.Keys.ToArray<string>();
         }
+        public static async void ExitFromLobby(string name)
+        {
+            await pointer
+                .Child("GameEngine")
+                .Child("Players")
+                .Child($"{name}")
+                .DeleteAsync();
+            DeletePicturesFromLobby(name);
+        }
+        public static void ExitFromLobby(Player player)
+        {
+            ExitFromLobby(player.name);
+        }
+        public static async void DeletePicturesFromLobby(string name)
+        {
+            await pointer
+                .Child("UsersPictures")
+                .Child($"{name}")
+                .DeleteAsync();
+        }
+
     }
 }

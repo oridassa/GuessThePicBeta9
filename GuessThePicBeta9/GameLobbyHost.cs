@@ -61,6 +61,11 @@ namespace GuessThePicBeta9
             ArrayAdapter<string> adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, arr);
             listView.Adapter = adapter;
         }
+        public void SetPlayersList(string[] arr) //override to send to the event listener
+        {
+            ArrayAdapter<string> adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, arr);
+            listView.Adapter = adapter;
+        }
 
         public override void OnRequestPermissionsResult(int requestCode,
             string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
@@ -76,7 +81,11 @@ namespace GuessThePicBeta9
             Button b = (Button)v;
             if (b.Text == "Quit to main menu")
             {
-                if (currentPlayer.isAdmin) KillLobby();
+                if (currentPlayer.isAdmin)
+                    KillLobby();
+                else
+                    FirebaseActions.ExitFromLobby(currentPlayer);
+                    
                 GameEngineSingleton.DeleteInstance();
                 CurrentPlayer.DeletePlayerInstance();
                 intent = new Intent(this, typeof(MainActivity));
@@ -139,16 +148,20 @@ namespace GuessThePicBeta9
             }
             return false;
         }
+
         public void ImageManagmentHost(Image img)
         {
             if (img == null) return;
-            this.gameEngine.AddImage(img);
+            FirebaseActions.UploadImageUser(img);
+
         }
         public void ImageManagmentPlayer(Image img)
         {
             if (img == null) return;
+            FirebaseActions.UploadImageUser(img);
                 
         }
+
         public async Task<Image> PickImageFromPhone()
         {
             await CrossMedia.Current.Initialize();
