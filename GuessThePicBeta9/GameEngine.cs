@@ -5,6 +5,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Java.Util;
 using Plugin.Media.Abstractions;
 using System;
 using System.Collections.Generic;
@@ -16,17 +17,18 @@ namespace GuessThePicBeta9
     public class GameEngine
     {
         public IList<Image> ImageList { get; private set; }
-        public int CurrentImageIndex {  get; private set; }
-        public Dictionary<string, Player> Players {  get; private set; } 
+        public int CurrentImageIndex { get; private set; }
+        public Dictionary<string, Player> Players { get; private set; }
         public string ID { get; set; }
 
-        public GameEngine() 
+        public GameEngine()
         {
             this.ImageList = new List<Image>();
             this.Players = new Dictionary<string, Player>();
             this.Players.Add($"{CurrentPlayer.playerPointer.name}", CurrentPlayer.playerPointer);
             this.CurrentImageIndex = 0;
         }
+
         public void AddImage(Image image)
         {
             this.ImageList.Add(image);
@@ -53,7 +55,7 @@ namespace GuessThePicBeta9
         }
         public bool HasImages()
         {
-            return ImageList.Count > 0;
+            return this.ImageList.Count > 0;
         }
         public string GetScoreString()
         {
@@ -64,6 +66,23 @@ namespace GuessThePicBeta9
                 s += "\n";
             }
             return s;
+        }
+        public void SetImageList(List<Image> ImageList)
+        {
+            this.ImageList = ImageList;
+        }
+        public void ScambleImageList()
+        {
+            System.Random rand = new System.Random();
+            int n = this.ImageList.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rand.Next(n + 1);
+                Image value = this.ImageList[k];
+                this.ImageList[k] = this.ImageList[n];
+                this.ImageList[n] = value;
+            }
         }
     }
 }

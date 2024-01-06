@@ -21,12 +21,9 @@ namespace GuessThePicBeta9
         private GameEngineSingleton() { }
         public static GameEngine GetInstance()
         {
-            lock (lockObject)
-            {
-                if (instance == null)
-                    instance = new GameEngine();
-                return instance;
-            }
+            if (instance == null)
+                instance = new GameEngine();
+            return instance;
         }
         public static void DeleteInstance()
         {

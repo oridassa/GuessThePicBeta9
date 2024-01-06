@@ -38,7 +38,6 @@ namespace GuessThePicBeta9
 
         private IList<Button> buttons;
 
-        private string playersArrayStr = "ori,noam,mori,tuval,shaked";
         List<string> playersArray;
 
         private Player currentPlayer = CurrentPlayer.playerPointer;
@@ -102,7 +101,7 @@ namespace GuessThePicBeta9
         }
         private void InitializeButtons()
         {
-            playersArray = playersArrayStr.Split(",").ToList();
+            playersArray = GameEngineSingleton.GetInstance().Players.Keys.ToList();
 
             foreach (string player in playersArray)
             {

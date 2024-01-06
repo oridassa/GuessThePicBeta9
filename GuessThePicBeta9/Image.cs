@@ -15,14 +15,17 @@ namespace GuessThePicBeta9
 {
     public class Image
     {
-        public byte[] ImageBytesData { get; }
-        public string SourcePlayer { get; }
-        public Image(byte[] imageBytesDATA, string sourcePlayer)//gets name and byte data
+        public byte[] ImageBytesData { get; set; }
+        public string SourcePlayer { get; set; }
+        public Image(byte[] ImageBytesData, string SourcePlayer)//gets name and byte data
         {
-            this.ImageBytesData = imageBytesDATA;
-            this.SourcePlayer = sourcePlayer;
+            this.ImageBytesData = ImageBytesData;
+            this.SourcePlayer = SourcePlayer;
         }
+        public Image()
+        {
 
+        }
 
         public Image(byte[] imageBytesDATA)  //gets only byte data
         {
@@ -44,6 +47,11 @@ namespace GuessThePicBeta9
         {
             this.SourcePlayer = sourcePlayer;
             this.ImageBytesData = this.ConvertBase64ToBytes(base64Image);
+        }
+        public Image(Image other)
+        {
+            this.ImageBytesData = other.ImageBytesData;
+            this.SourcePlayer = other.SourcePlayer;
         }
 
         public string ConvertBytesToBase64(byte[] imageBytes)

@@ -4,12 +4,16 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Firebase.Database;
+using Firebase.Database.Query;
 using Org.Apache.Http.Conn;
 using Plugin.Media;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
@@ -30,6 +34,10 @@ namespace GuessThePicBeta9
 
         private Thread changes;
         private bool stopThread = false;
+
+        //
+        IDisposable disposable;
+        //
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -57,17 +65,22 @@ namespace GuessThePicBeta9
             }
 
             SetPlayersList();
-            //CheckForChanges();
+            CheckForChanges();
+            //changes = new Thread(CheckForChanges);
+            //changes.Start();
         }
 
         public async void SetPlayersList()
         {
             string[] arr = await FirebaseActions.GetPlayerNamesArray();
-            ArrayAdapter<string> adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, arr);
-            listView.Adapter = adapter;
-            FirebaseActions.SubscribeTothePlayersList(SetPlayersList);
+            if (arr != null)
+            {
+                ArrayAdapter<string> adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, arr);
+                listView.Adapter = adapter;
+            }
+            
         }
-        public void SetPlayersList(string[] arr) //override to send to the event listener
+        public void SetPlayersListFromArray(string[] arr) //override to send to the event listener
         {
             ArrayAdapter<string> adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, arr);
             listView.Adapter = adapter;
@@ -87,13 +100,7 @@ namespace GuessThePicBeta9
             Button b = (Button)v;
             if (b.Text == "Quit to main menu")
             {
-                if (currentPlayer.isAdmin)
-                    await KillLobby();
-                else
-                    FirebaseActions.ExitFromLobby(currentPlayer);
-                StopListeningForChanges();
-                GameEngineSingleton.DeleteInstance();
-                CurrentPlayer.DeletePlayerInstance();
+                await ReturnToMainMenuActions();
                 intent = new Intent(this, typeof(MainActivity));
                 base.StartActivity(intent);
             }
@@ -106,13 +113,29 @@ namespace GuessThePicBeta9
             }
             else if (b.Text == "Start Game")
             {
-                StopListeningForChanges();
-                //host wants to start the game
-                FirebaseActions.UploadGamesEngine(gameEngine);
-                StartGame();
+                //StopListeningForChanges();
+                List<Image> imageList = await FirebaseActions.GetUsersImage();
+                GameEngine temp = await FirebaseActions.GetGameEngine();
+
+                temp.SetImageList(imageList);
+                temp.ScambleImageList();
+
+                FirebaseActions.UploadGamesEngine(temp);
+                FirebaseActions.StartGame();
             }
         }
 
+        public async Task<bool> ReturnToMainMenuActions()
+        {
+            if (currentPlayer.isAdmin)
+                await KillLobby();
+            else
+                FirebaseActions.ExitFromLobby(currentPlayer);
+           
+            GameEngineSingleton.DeleteInstance();
+            CurrentPlayer.DeletePlayerInstance();
+            return true;
+        }
 
 
         private async Task<bool> PickImage()
@@ -165,7 +188,7 @@ namespace GuessThePicBeta9
         {
             if (img == null) return;
             FirebaseActions.UploadImageUser(img);
-                
+
         }
 
         public async Task<Image> PickImageFromPhone()
@@ -206,8 +229,9 @@ namespace GuessThePicBeta9
         public async void StartGame()
         {
             Intent intent;
-
-            if (gameEngine.HasImages())
+            GameEngine g = await FirebaseActions.GetGameEngine();
+            GameEngineSingleton.SetInstance(g);
+            if (g.HasImages())
             {
                 intent = new Intent(this, typeof(GameplayScreen));
                 base.StartActivity(intent);
@@ -216,9 +240,6 @@ namespace GuessThePicBeta9
             {
                 Toast.MakeText(this, "No pictures added", ToastLength.Short).Show();
             }
-
-
-            
         }
         public void GenerateGameID()
         {
@@ -235,21 +256,28 @@ namespace GuessThePicBeta9
         {
             while (!stopThread)
             {
-                Thread.Sleep(100);
-                if(!stopThread)
-                SetPlayersList();
-                bool isGameStarted = await FirebaseActions.IsGameStarted();
-                if (isGameStarted)
+                Thread.Sleep(500);
+                if (stopThread)
                 {
-                    StartGame();
+                    break;
+                }
+                bool isGameStarted = false;
+                if (!FirebaseActions.IsPointerNull())
+                {
+                    SetPlayersList();
+                    isGameStarted = await FirebaseActions.IsGameStarted();
+                    if (isGameStarted)
+                    {
+                        stopThread = true; 
+                        StartGame();
+                    }
                 }
             }
         }
         public void StopListeningForChanges()
         {
+            //this.changes.Abort();
             this.stopThread = true;
-            Thread.Sleep(500);
         }
-
     }
 }

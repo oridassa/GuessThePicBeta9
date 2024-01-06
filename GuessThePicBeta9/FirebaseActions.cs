@@ -9,8 +9,11 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
+    
 
 namespace GuessThePicBeta9
 {
@@ -55,7 +58,7 @@ namespace GuessThePicBeta9
         public static async Task<bool> KillLobby()
         {
             await pointer.DeleteAsync();
-            pointer = null;
+            //pointer = null;
             return true;
         }
         public static async Task<bool> IsGameOnline(string gameID)
@@ -143,9 +146,9 @@ namespace GuessThePicBeta9
                 .Child($"{name}")
                 .DeleteAsync();
         }
-        public static void SubscribeTothePlayersList(Action<string[]> setPlayersList)
+        public static IDisposable SubscribeTothePlayersList(Action<string[]> setPlayersList)
         {
-            pointer
+            return pointer
                 .Child("GameEngine")
                 .Child("Players")
                 .AsObservable<Dictionary<string, Player>>()
@@ -153,13 +156,53 @@ namespace GuessThePicBeta9
                 {
                     string[] arr = players.Object.Keys.ToArray();
                     setPlayersList(arr);
-                });
+                }); 
         }
         public static async Task<bool> IsGameStarted()
         {
             return await pointer
                 .Child("GameStarted")
                 .OnceSingleAsync<bool>();
+        }
+        public static bool IsPointerNull()
+        {
+            return pointer == null;
+        }
+        public static async Task<List<Image>> GetUsersImage()
+        {
+            string jsonString = await pointer.
+                Child("UsersPictures")
+                .OnceAsJsonAsync();
+            return ExtractImagesFromJson(jsonString);
+        }
+        public static List<Image> ExtractImagesFromJson(string jsonString) //this function finally works!!!!
+        {
+            List<Image> images = new List<Image>();
+            try
+            {
+                Dictionary<string, Dictionary<string, Image>> jsonObj = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Image>>>(jsonString);
+
+                foreach (var userImages in jsonObj.Values)
+                {
+                    foreach (var image in userImages.Values)
+                    {
+                        images.Add(image);
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine($"Error parsing JSON: {ex.Message}");
+            }
+
+            return images;
+        }
+
+        public static async void StartGame()
+        {
+            await pointer
+                .Child("GameStarted")
+                .PutAsync<bool>(true);
         }
     }
 }
