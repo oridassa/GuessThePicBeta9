@@ -93,6 +93,7 @@ namespace GuessThePicBeta9
             }
 
             // After 5 seconds, post the function to be executed on the UI thread
+            handler.Post(() => SetNextImage());
             handler.Post(() => ColorTheButton());
             handler.Post(() => RemoveButtonClickabillity());
             Thread.Sleep(2000);
@@ -148,6 +149,13 @@ namespace GuessThePicBeta9
             foreach(Button button in buttons)
             {
                 button.Clickable = false;
+            }
+        }
+        public void SetNextImage()
+        {
+            if (!gameEngine.IsLastImage())
+            {
+                gameEngine.SetNextImage();
             }
         }
     }

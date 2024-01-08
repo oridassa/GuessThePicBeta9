@@ -11,35 +11,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace GuessThePicBeta9
 {
     public class GameEngine
     {
-        public IList<Image> ImageList { get; private set; }
+        public IList<ImageDatabasePointer> ImageList { get; private set; }
         public int CurrentImageIndex { get; private set; }
         public Dictionary<string, Player> Players { get; private set; }
         public string ID { get; set; }
+        public Image? CurrentImage { get; set; }
 
         public GameEngine()
         {
-            this.ImageList = new List<Image>();
+            this.ImageList = new List<ImageDatabasePointer>();
             this.Players = new Dictionary<string, Player>();
             this.Players.Add($"{CurrentPlayer.playerPointer.name}", CurrentPlayer.playerPointer);
             this.CurrentImageIndex = 0;
         }
 
-        public void AddImage(Image image)
-        {
-            this.ImageList.Add(image);
-        }
         public void NextImage()
         {
             this.CurrentImageIndex++;
         }
         public Image GetCurrentImage()
         {
-            return this.ImageList[this.CurrentImageIndex];
+            return CurrentImage;
         }
         public string GetCurrentImagePlayerName()
         {
@@ -67,7 +65,7 @@ namespace GuessThePicBeta9
             }
             return s;
         }
-        public void SetImageList(List<Image> ImageList)
+        public void SetImageList(List<ImageDatabasePointer> ImageList)
         {
             this.ImageList = ImageList;
         }
@@ -79,10 +77,19 @@ namespace GuessThePicBeta9
             {
                 n--;
                 int k = rand.Next(n + 1);
-                Image value = this.ImageList[k];
+                ImageDatabasePointer value = this.ImageList[k];
                 this.ImageList[k] = this.ImageList[n];
                 this.ImageList[n] = value;
             }
+        }
+        public async Task<bool> SetCurrentImage()
+        {
+            CurrentImage = await FirebaseActions.GetImageByPointer(ImageList[CurrentImageIndex]);
+            return true;
+        }
+        public async void SetNextImage()
+        {
+            CurrentImage = await FirebaseActions.GetImageByPointer(ImageList[CurrentImageIndex + 1]);
         }
     }
 }

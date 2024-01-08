@@ -13,6 +13,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using Android.Security.Identity;
+using System.Linq.Expressions;
+using AndroidX.AppCompat.View.Menu;
 
 
 namespace GuessThePicBeta9
@@ -51,10 +54,20 @@ namespace GuessThePicBeta9
         public static async void UploadImageUser(Image img)
         {
             //TODO: Add img to a static location at the firebase database where the host could add the pic to the game engine
-            await pointer
+            var result = await pointer
                 .Child("UsersPictures")
                 .Child($"{CurrentPlayer.playerPointer.name}")
                 .PostAsync<Image>(img);
+            AddToImagePointerDictionaryt(result.Key);
+        }
+        public static async void AddToImagePointerDictionaryt(string imageKey)
+        {
+            ImageDatabasePointer dbPointer = new ImageDatabasePointer(imageKey);
+            
+            await pointer
+                .Child("ImagePointerDictionary")
+                .Child(CurrentPlayer.name)
+                .PostAsync(dbPointer);
         }
         public static async Task<bool> KillLobby()
         {
@@ -134,6 +147,7 @@ namespace GuessThePicBeta9
                 .Child($"{name}")
                 .DeleteAsync();
             DeletePicturesFromLobby(name);
+            DeleteImagePointerFromLobby(name);
         }
         public static void ExitFromLobby(Player player)
         {
@@ -145,6 +159,13 @@ namespace GuessThePicBeta9
             await pointer
                 .Child("UsersPictures")
                 .Child($"{name}")
+                .DeleteAsync();
+        }
+        public static async void DeleteImagePointerFromLobby(string name)
+        {
+            await pointer
+                .Child("ImagePointerDictionary")
+                .Child(name)
                 .DeleteAsync();
         }
         public static IDisposable SubscribeTothePlayersList(Action<string[]> setPlayersList)
@@ -169,20 +190,28 @@ namespace GuessThePicBeta9
         {
             return pointer == null;
         }
-        public static async Task<List<Image>> GetUsersImage()
+        //public static async Task<List<Image>> GetUsersImages()
+        //{
+        //    string jsonString = await pointer.
+        //        Child("UsersPictures")
+        //        .OnceAsJsonAsync();
+        //    return ExtractImagesFromJson<Image>(jsonString);
+        //}
+        public static async Task<List<ImageDatabasePointer>> GetImageDatabasePointerList()
         {
             string jsonString = await pointer.
-                Child("UsersPictures")
+                Child("ImagePointerDictionary")
                 .OnceAsJsonAsync();
             return ExtractImagesFromJson(jsonString);
         }
-        public static List<Image> ExtractImagesFromJson(string jsonString) //this function finally works!!!!
+        public static List<ImageDatabasePointer> ExtractImagesFromJson(string jsonString) //this function finally works!!!!
         {
-            List<Image> images = new List<Image>();
+            List<ImageDatabasePointer> images = new List<ImageDatabasePointer>();
             try
             {
-                Dictionary<string, Dictionary<string, Image>> jsonObj = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Image>>>(jsonString);
-
+                Dictionary<string, Dictionary<string, ImageDatabasePointer>> jsonObj = 
+                    JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, ImageDatabasePointer>>>(jsonString);
+                
                 foreach (var userImages in jsonObj.Values)
                 {
                     foreach (var image in userImages.Values)
@@ -204,6 +233,14 @@ namespace GuessThePicBeta9
             await pointer
                 .Child("GameStarted")
                 .PutAsync<bool>(true);
+        }
+        public static async Task<Image> GetImageByPointer(ImageDatabasePointer imagePointer)
+        {
+            return await pointer
+                .Child(imagePointer.First())
+                .Child(imagePointer.Second())
+                .Child(imagePointer.Third())
+                .OnceSingleAsync<Image>();
         }
     }
 }

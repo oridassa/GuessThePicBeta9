@@ -111,10 +111,11 @@ namespace GuessThePicBeta9
             else if (b.Text == "Start Game")
             {
                 //StopListeningForChanges();
-                List<Image> imageList = await FirebaseActions.GetUsersImage();
+                List<ImageDatabasePointer> imageList = await FirebaseActions.GetImageDatabasePointerList();
                 GameEngine temp = await FirebaseActions.GetGameEngine();
 
                 temp.SetImageList(imageList);
+                await temp.SetCurrentImage();
                 temp.ScambleImageList();
 
                 await FirebaseActions.UploadGamesEngine(temp);
@@ -148,31 +149,6 @@ namespace GuessThePicBeta9
             return true;
 
 
-        }
-
-        public async Task<bool> PicImageHost()
-        {
-            await CrossMedia.Current.Initialize();
-
-            if (!CrossMedia.Current.IsPickPhotoSupported)
-            {
-                Toast.MakeText(this, $"pick another photo", ToastLength.Short).Show();
-                return false;
-            }
-            var file = await CrossMedia.Current.PickPhotoAsync(new Plugin.Media.Abstractions.PickMediaOptions
-            {
-                PhotoSize = Plugin.Media.Abstractions.PhotoSize.Full
-            });
-            if (file != null)
-            {
-                byte[] bytes = File.ReadAllBytes(file.Path);
-                if (bytes.Length > 0)
-                {
-                    gameEngine.AddImage(new Image(bytes, "noam"));
-                    return true;
-                }
-            }
-            return false;
         }
 
         public void ImageManagmentHost(Image img)
