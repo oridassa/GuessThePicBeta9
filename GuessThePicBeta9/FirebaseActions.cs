@@ -13,7 +13,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
-    
+
 
 namespace GuessThePicBeta9
 {
@@ -26,9 +26,10 @@ namespace GuessThePicBeta9
         {
             throw new NotImplementedException();
         }
-        public static void UploadGamesEngine(GameEngine g)
+        public static async Task<bool> UploadGamesEngine(GameEngine g)
         {
-            pointer.Child("GameEngine").PutAsync<GameEngine>(g);
+            await pointer.Child("GameEngine").PutAsync<GameEngine>(g);
+            return true;
         }
         public static async Task<bool> GameSetup(string gameID, GameEngine gameEngine = null)
         {
@@ -36,12 +37,12 @@ namespace GuessThePicBeta9
             if (CurrentPlayer.playerPointer.isAdmin == true)
             {
                 await pointer.Child("GameStarted").PutAsync(false);
-                UploadGamesEngine(gameEngine);
+                await UploadGamesEngine(gameEngine);
             }
 
             return true;
             //await pointer.Child(gameID).Child("Images").PutAsync();
-            
+
         }
         public static void SetDatabasePointer(string gameID)
         {
@@ -122,7 +123,7 @@ namespace GuessThePicBeta9
         public static async Task<string[]> GetPlayerNamesArray()
         {
             Dictionary<string, Player> players = await GetPlayersList();
-            
+
             return players.Keys.ToArray<string>();
         }
         public static async void ExitFromLobby(string name)
@@ -138,7 +139,7 @@ namespace GuessThePicBeta9
         {
             ExitFromLobby(player.name);
         }
-        
+
         public static async void DeletePicturesFromLobby(string name)
         {
             await pointer
@@ -156,7 +157,7 @@ namespace GuessThePicBeta9
                 {
                     string[] arr = players.Object.Keys.ToArray();
                     setPlayersList(arr);
-                }); 
+                });
         }
         public static async Task<bool> IsGameStarted()
         {

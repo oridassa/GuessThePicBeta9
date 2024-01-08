@@ -35,9 +35,6 @@ namespace GuessThePicBeta9
         private Thread changes;
         private bool stopThread = false;
 
-        //
-        IDisposable disposable;
-        //
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -78,7 +75,7 @@ namespace GuessThePicBeta9
                 ArrayAdapter<string> adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, arr);
                 listView.Adapter = adapter;
             }
-            
+
         }
         public void SetPlayersListFromArray(string[] arr) //override to send to the event listener
         {
@@ -120,7 +117,7 @@ namespace GuessThePicBeta9
                 temp.SetImageList(imageList);
                 temp.ScambleImageList();
 
-                FirebaseActions.UploadGamesEngine(temp);
+                await FirebaseActions.UploadGamesEngine(temp);
                 FirebaseActions.StartGame();
             }
         }
@@ -131,7 +128,7 @@ namespace GuessThePicBeta9
                 await KillLobby();
             else
                 FirebaseActions.ExitFromLobby(currentPlayer);
-           
+
             GameEngineSingleton.DeleteInstance();
             CurrentPlayer.DeletePlayerInstance();
             return true;
@@ -268,7 +265,7 @@ namespace GuessThePicBeta9
                     isGameStarted = await FirebaseActions.IsGameStarted();
                     if (isGameStarted)
                     {
-                        stopThread = true; 
+                        stopThread = true;
                         StartGame();
                     }
                 }
