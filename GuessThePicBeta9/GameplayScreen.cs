@@ -144,7 +144,7 @@ namespace GuessThePicBeta9
                 }
                 pick.SetBackgroundColor(Color.DarkGray);
             }
-
+            FirebaseActions.UploadNamePointsString();
         }
         public void RemoveButtonClickabillity()
         {

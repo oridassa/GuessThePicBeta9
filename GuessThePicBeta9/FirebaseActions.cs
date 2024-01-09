@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using Android.Security.Identity;
 using System.Linq.Expressions;
 using AndroidX.AppCompat.View.Menu;
+using System.Runtime.InteropServices.ComTypes;
 
 
 namespace GuessThePicBeta9
@@ -242,6 +243,48 @@ namespace GuessThePicBeta9
                 .Child(imagePointer.Second())
                 .Child(imagePointer.Third())
                 .OnceSingleAsync<Image>();
+        }
+        public static async void UploadNamePointsString() //for current user5
+        {
+            await pointer
+                .Child("PointString")
+                .Child(CurrentPlayer.name)
+                .PutAsync<string>($"{CurrentPlayer.name}: {CurrentPlayer.playerPointer.points}");
+        }
+        public static async Task<string> GetPointsString()
+        {
+            string jsonString = await pointer.
+                Child("PointString")
+                .OnceAsJsonAsync();
+            List<string> lst = ExtractListStringFromJson(jsonString);
+            string s = "";
+            foreach (string playerPoints in lst) 
+            {
+                s += playerPoints;
+                s += "\n";
+            }
+            return s;
+        }
+        public static List<string> ExtractListStringFromJson(string jsonString) //this function finally works!!!!
+        {
+            List<string> strings = new List<string>();
+            try
+            {
+                Dictionary<string, string> jsonObj =
+                    JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString);
+
+                foreach (var str in jsonObj.Values)
+                {
+                    strings.Add(str);
+                }
+               
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine($"Error parsing JSON: {ex.Message}");
+            }
+
+            return strings;
         }
     }
 }

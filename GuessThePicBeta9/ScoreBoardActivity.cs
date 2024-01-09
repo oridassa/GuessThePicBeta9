@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using static Xamarin.Essentials.Platform;
 
 namespace GuessThePicBeta9
@@ -23,7 +24,7 @@ namespace GuessThePicBeta9
         Android.OS.Handler handler;
         private ProgressBar progressBar;
         TextView roundCounter;
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.score_board);
@@ -38,7 +39,7 @@ namespace GuessThePicBeta9
 
             SetRoundCounter();
 
-            SetScoreBoard();
+            await SetScoreBoard();
 
             var thread = new Thread(Timer);
 
@@ -90,12 +91,11 @@ namespace GuessThePicBeta9
         {
             roundCounter.Text = $"Score : Round {gameEngine.GetRoundNum()}";
         }
-        public void SetScoreBoard()
+        public async Task<bool> SetScoreBoard()
         {
-            string s = "";
-            //***TODO: create a List<Player> of all of the players and do the same for all of them
-            s += CurrentPlayer.playerPointer.ToString();
+            string s = await FirebaseActions.GetPointsString();
             score.Text = s;
+            return tru 
         }
     }
 }
