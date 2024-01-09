@@ -105,8 +105,9 @@ namespace GuessThePicBeta9
             {
                 //player pressed "Insert photos"
                 //UploadPictures();
+                DisableStartGameButton(); //to not allow the game to start before the upload is done
                 await PickImage();
-
+                EnableStartGameButton();
             }
             else if (b.Text == "Start Game")
             {
@@ -121,6 +122,17 @@ namespace GuessThePicBeta9
                 await FirebaseActions.UploadGamesEngine(temp);
                 FirebaseActions.StartGame();
             }
+        }
+
+        public void DisableStartGameButton()
+        {
+            startGameButton.Clickable = false;
+            startGameButton.SetTextColor(Android.Graphics.Color.DarkRed);
+        }
+        public void EnableStartGameButton()
+        {
+            startGameButton.Clickable = true;
+            startGameButton.SetTextColor(Android.Graphics.Color.Black);
         }
 
         public async Task<bool> ReturnToMainMenuActions()
@@ -142,26 +154,18 @@ namespace GuessThePicBeta9
             if (img == null) return false;
             if (currentPlayer.isAdmin)
             {
-                ImageManagmentHost(img);
+                await ImageManagment(img);
                 return true;
             }
-            ImageManagmentPlayer(img);
+            await ImageManagment(img);
             return true;
 
 
         }
-
-        public void ImageManagmentHost(Image img)
+        public async Task<bool> ImageManagment(Image img)
         {
-            if (img == null) return;
-            FirebaseActions.UploadImageUser(img);
-
-        }
-        public void ImageManagmentPlayer(Image img)
-        {
-            if (img == null) return;
-            FirebaseActions.UploadImageUser(img);
-
+            if (img == null) return false;
+            return await FirebaseActions.UploadImageUser(img);
         }
 
         public async Task<Image> PickImageFromPhone()
@@ -175,7 +179,7 @@ namespace GuessThePicBeta9
             }
             var file = await CrossMedia.Current.PickPhotoAsync(new Plugin.Media.Abstractions.PickMediaOptions
             {
-                PhotoSize = Plugin.Media.Abstractions.PhotoSize.Full
+                PhotoSize = Plugin.Media.Abstractions.PhotoSize.Medium
             });
             if (file != null)
             {

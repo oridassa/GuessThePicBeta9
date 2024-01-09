@@ -51,7 +51,7 @@ namespace GuessThePicBeta9
         {
             pointer = firebaseClient.Child("Games").Child(gameID);
         }
-        public static async void UploadImageUser(Image img)
+        public static async Task<bool> UploadImageUser(Image img)
         {
             //TODO: Add img to a static location at the firebase database where the host could add the pic to the game engine
             var result = await pointer
@@ -59,6 +59,7 @@ namespace GuessThePicBeta9
                 .Child($"{CurrentPlayer.playerPointer.name}")
                 .PostAsync<Image>(img);
             AddToImagePointerDictionaryt(result.Key);
+            return true;
         }
         public static async void AddToImagePointerDictionaryt(string imageKey)
         {
