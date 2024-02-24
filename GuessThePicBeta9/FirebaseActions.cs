@@ -17,6 +17,7 @@ using Android.Security.Identity;
 using System.Linq.Expressions;
 using AndroidX.AppCompat.View.Menu;
 using System.Runtime.InteropServices.ComTypes;
+using static Java.Util.Jar.Attributes;
 
 
 namespace GuessThePicBeta9
@@ -137,7 +138,9 @@ namespace GuessThePicBeta9
         //}
         public static async Task<string[]> GetPlayerNamesArray()
         {
-            Dictionary<string, Player> players = await GetPlayersList();
+            Dictionary<string, Player> players = null;
+            if (pointer != null)
+                players = await GetPlayersList();
 
             return players.Keys.ToArray<string>();
         }
@@ -184,9 +187,11 @@ namespace GuessThePicBeta9
         }
         public static async Task<bool> IsGameStarted()
         {
-            return await pointer
-                .Child("GameStarted")
-                .OnceSingleAsync<bool>();
+            if(pointer != null) 
+                return await pointer
+                    .Child("GameStarted")
+                    .OnceSingleAsync<bool>();
+            return false;
         }
         public static bool IsPointerNull()
         {
@@ -285,6 +290,35 @@ namespace GuessThePicBeta9
             }
 
             return strings;
+        }
+        public static async void SetPlayerReady()
+        {
+            await pointer
+                .Child("GameEngine")
+                .Child("Players")
+                .Child(CurrentPlayer.name)
+                .Child("Ready")
+                .PutAsync<bool>(true);
+        }
+        public static async Task<bool> IsPlayerReady(string name)
+        {
+            return await pointer
+                .Child("GameEngine")
+                .Child("Players")
+                .Child(CurrentPlayer.name)
+                .Child("Ready")
+                .OnceSingleAsync<bool>();
+        }
+        public static async Task<bool> IsAllReady(IList<string> playersList)
+        {
+            foreach(string player in playersList)
+            {
+                if(!await IsPlayerReady(player))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

@@ -24,6 +24,8 @@ namespace GuessThePicBeta9
         Android.OS.Handler handler;
         private ProgressBar progressBar;
         TextView roundCounter;
+
+        private int loopLength = 1000;
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -37,7 +39,15 @@ namespace GuessThePicBeta9
 
             handler = new Android.OS.Handler();
 
-            SetRoundCounter();
+
+            if (!gameEngine.IsLastImage())
+                SetRoundCounter();
+            else
+            {
+                progressBar.Max = 2000;
+                loopLength = 2000;
+                SetFinaleScreen();
+            }
 
             await SetScoreBoard();
 
@@ -45,6 +55,12 @@ namespace GuessThePicBeta9
 
             thread.Start();
         }
+
+        private void SetFinaleScreen()
+        {
+            roundCounter.Text = $"Game Ended\nFinal Scoreboard";
+        }
+
         protected override void OnStart()
         {
             base.OnStart();
@@ -52,7 +68,7 @@ namespace GuessThePicBeta9
         }
         public void Timer()
         {
-            for (int i = 0; i <= 1000; i++)
+            for (int i = 0; i <= loopLength; i++)
             {
                 // Update progress on UI thread
                 handler.Post(() => progressBar.Progress = i);
@@ -84,6 +100,7 @@ namespace GuessThePicBeta9
         public async void FinishGame()
         {
             if (CurrentPlayer.playerPointer.isAdmin) await FirebaseActions.KillLobby();
+            CurrentPlayer.DeletePlayerInstance();
             Android.Content.Intent intent = new Android.Content.Intent(this, typeof(MainActivity));
             base.StartActivity(intent);
         }
@@ -95,7 +112,7 @@ namespace GuessThePicBeta9
         {
             string s = await FirebaseActions.GetPointsString();
             score.Text = s;
-            return tru 
+            return true;
         }
     }
 }

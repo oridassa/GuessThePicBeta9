@@ -65,7 +65,7 @@ namespace GuessThePicBeta9
 
             gameEngine = GameEngineSingleton.GetInstance();
 
-            roundcounter.Text = $"Round {gameEngine.GetRoundNum()}";
+            SetTitle();
 
             image = gameEngine.GetCurrentImage();
             SetImage();
@@ -159,6 +159,10 @@ namespace GuessThePicBeta9
             {
                 gameEngine.SetNextImage();
             }
+        }
+        public void SetTitle() 
+        {
+            roundcounter.Text = $"Round {gameEngine.GetRoundNum()}";
         }
     }
 }

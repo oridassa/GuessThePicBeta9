@@ -9,11 +9,14 @@ using Firebase.Database.Query;
 using Org.Apache.Http.Conn;
 using Plugin.Media;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
@@ -28,12 +31,17 @@ namespace GuessThePicBeta9
         private Button startGameButton;
         private GameEngine gameEngine;
         private GameInitiator gameInitiator;
+        private TextView photosLeft;
 
         private Player currentPlayer;
         private string gameid;
 
         private Thread changes;
         private bool stopThread = false;
+
+        private int picturesLeftCount;
+
+        private string[] playersArray;
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {
@@ -45,6 +53,9 @@ namespace GuessThePicBeta9
             listView = FindViewById<ListView>(Resource.Id.list123);
             gameidview = FindViewById<TextView>(Resource.Id.gameidview);
             startGameButton = FindViewById<Button>(Resource.Id.startGameButton);
+            photosLeft = FindViewById<TextView>(Resource.Id.photosLeft);
+
+            SetPhotosLeft();
 
             startGameButton.Visibility = DetermineIfHost();
 
@@ -54,6 +65,7 @@ namespace GuessThePicBeta9
                 gameInitiator = new GameInitiator();
                 GenerateGameID();
                 await FirebaseActions.GameSetup(gameEngine.ID, gameEngine);
+                
             }
             else
             {
@@ -63,19 +75,30 @@ namespace GuessThePicBeta9
 
             SetPlayersList();
             CheckForChanges();
+            DisableStartGameButton();
+
+            Thread ReadyPlayersThread;
+            if (currentPlayer.isAdmin)
+            {
+                ReadyPlayersThread = new Thread(new ThreadStart(CheckForReadyPlayers));
+                ReadyPlayersThread.Start();
+            }
+                
+                
+
             //changes = new Thread(CheckForChanges);
             //changes.Start();
         }
-
         public async void SetPlayersList()
         {
+            
             string[] arr = await FirebaseActions.GetPlayerNamesArray();
             if (arr != null)
             {
                 ArrayAdapter<string> adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, arr);
                 listView.Adapter = adapter;
+                this.playersArray = arr;
             }
-
         }
         public void SetPlayersListFromArray(string[] arr) //override to send to the event listener
         {
@@ -97,17 +120,16 @@ namespace GuessThePicBeta9
             Button b = (Button)v;
             if (b.Text == "Quit to main menu")
             {
+                stopThread = true;
                 await ReturnToMainMenuActions();
                 intent = new Intent(this, typeof(MainActivity));
                 base.StartActivity(intent);
             }
             else if (b.Text == "Insert photos")
             {
-                //player pressed "Insert photos"
-                //UploadPictures();
-                DisableStartGameButton(); //to not allow the game to start before the upload is done
+                //DisableStartGameButton(); //to not allow the game to start before the upload is done
                 await PickImage();
-                EnableStartGameButton();
+                //EnableStartGameButton();
             }
             else if (b.Text == "Start Game")
             {
@@ -165,6 +187,9 @@ namespace GuessThePicBeta9
         public async Task<bool> ImageManagment(Image img)
         {
             if (img == null) return false;
+
+            UpdatePhotosLeft();
+
             return await FirebaseActions.UploadImageUser(img);
         }
 
@@ -239,7 +264,7 @@ namespace GuessThePicBeta9
                     break;
                 }
                 bool isGameStarted = false;
-                if (!FirebaseActions.IsPointerNull())
+                if (!stopThread)
                 {
                     SetPlayersList();
                     isGameStarted = await FirebaseActions.IsGameStarted();
@@ -256,5 +281,49 @@ namespace GuessThePicBeta9
             //this.changes.Abort();
             this.stopThread = true;
         }
+        private void SetPhotosLeft()
+        {
+            photosLeft.Text = "Add 4 more photos";
+            picturesLeftCount = 4;
+        }
+
+        public void UpdatePhotosLeft()
+        {
+            if (picturesLeftCount == 1)
+            {
+                photosLeft.Text = "You are ready to play";
+                FirebaseActions.SetPlayerReady();
+            }
+            else
+            {
+                picturesLeftCount--;
+                photosLeft.Text = $"Add {picturesLeftCount} more photos";
+            }
+        }
+
+        public async void CheckForReadyPlayers()
+        {
+            while (!stopThread)
+            {
+                Thread.Sleep(1000);
+                if (stopThread)
+                {
+                    break;
+                }
+                bool isEveryoneReady = false;
+                if (!FirebaseActions.IsPointerNull())
+                {
+                    if (this.playersArray != null)
+                        isEveryoneReady = await FirebaseActions.IsAllReady(this.playersArray);
+                    if (isEveryoneReady)
+                    {
+                        EnableStartGameButton();
+                    }
+                    else
+                        DisableStartGameButton();
+                }
+            }
+        }
+
     }
 }

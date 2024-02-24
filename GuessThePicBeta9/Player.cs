@@ -16,12 +16,14 @@ namespace GuessThePicBeta9
         public string name { get; private set; }
         public bool isAdmin { get; private set; }
         public int points { get; private set; }
+        public bool? Ready { get; set; }
 
         public Player(string name, bool isAdmin)
         {
             this.name = name;
             this.isAdmin = isAdmin;
             this.points = 0;
+            this.Ready = false;
         }
 
         public void AddPoints(int timePoints)

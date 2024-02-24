@@ -71,15 +71,15 @@ namespace GuessThePicBeta9
         }
         public void ScambleImageList()
         {
-            System.Random rand = new System.Random();
-            int n = this.ImageList.Count;
+            System.Random rng = new  System.Random();
+            int n = ImageList.Count;
             while (n > 1)
             {
                 n--;
-                int k = rand.Next(n + 1);
-                ImageDatabasePointer value = this.ImageList[k];
-                this.ImageList[k] = this.ImageList[n];
-                this.ImageList[n] = value;
+                int k = rng.Next(n + 1);
+                ImageDatabasePointer value = ImageList[k];
+                ImageList[k] = ImageList[n];
+                ImageList[n] = value;
             }
         }
         public async Task<bool> SetCurrentImage()
