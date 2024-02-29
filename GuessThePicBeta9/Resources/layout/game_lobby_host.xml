@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
+    android:background="@drawable/background_picture"
     >
     <TextView
         android:layout_width="wrap_content"
@@ -52,6 +53,7 @@
             android:text="Quit to main menu"
             android:id="@+id/quit"
             android:onClick="onClick"
+            android:backgroundTint="@android:color/holo_green_dark"
         />
         <Button
             android:layout_width="300dp"
@@ -60,6 +62,7 @@
             android:text="Insert photos"
             android:id="@+id/insertphotos"
             android:onClick="onClick"
+            android:backgroundTint="@android:color/holo_green_dark"
         />
         <Button
             android:layout_width="300dp"
@@ -68,6 +71,7 @@
             android:onClick="onClick"
             android:id="@+id/startGameButton"
             android:visibility="gone"
+            android:backgroundTint="@android:color/holo_green_dark"
             />
     </LinearLayout>
 </LinearLayout>
