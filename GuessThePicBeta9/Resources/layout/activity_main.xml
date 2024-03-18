@@ -21,7 +21,6 @@
         android:id="@+id/name"
         android:hint="Enter name"        
         android:inputType="text"
-        android:shadowColor="green"
         />
     <Button
         android:layout_width="300dp"

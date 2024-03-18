@@ -25,8 +25,8 @@ namespace GuessThePicBeta9
                 // Set our view from the "main" layout resource
                 SetContentView(Resource.Layout.activity_main);
 
-                Button btn = FindViewById<Button>(Resource.Id.check);
-                btn.Click += RequestPrem;
+                //Button btn = FindViewById<Button>(Resource.Id.check);
+                //btn.Click += RequestPrem;
 
                 nameInput = FindViewById<EditText>(Resource.Id.name);
             } catch (Exception e)
