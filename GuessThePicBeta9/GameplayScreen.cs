@@ -24,7 +24,7 @@ using Android.App.AppSearch;
 
 namespace GuessThePicBeta9
 {
-    [Activity(Label = "GameplayScreen")]
+    [Activity(Label = "GameplayScreen", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class GameplayScreen : Activity, View.IOnClickListener
     {
         private TextView roundcounter;

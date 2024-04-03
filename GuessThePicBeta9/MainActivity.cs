@@ -1,6 +1,7 @@
 ﻿using System;
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.Media.TV;
 using Android.OS;
 using Android.Runtime;
@@ -12,7 +13,7 @@ using Xamarin.Essentials;
 
 namespace GuessThePicBeta9
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
+    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true, ScreenOrientation = ScreenOrientation.Portrait)]
     public class MainActivity : AppCompatActivity, View.IOnClickListener
     {
         private EditText nameInput;

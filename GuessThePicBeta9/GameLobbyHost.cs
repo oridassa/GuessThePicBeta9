@@ -23,7 +23,7 @@ using Xamarin.Essentials;
 
 namespace GuessThePicBeta9
 {
-    [Activity(Label = "GameLobbyHost")]
+    [Activity(Label = "GameLobbyHost", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class GameLobbyHost : Activity, View.IOnClickListener
     {
         private ListView listView;

@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.Media.Metrics;
 using Android.OS;
 using Android.Runtime;
@@ -16,7 +17,7 @@ using static Xamarin.Essentials.Platform;
 
 namespace GuessThePicBeta9
 {
-    [Activity(Label = "ScoreBoardActivity")]
+    [Activity(Label = "ScoreBoardActivity", ScreenOrientation = ScreenOrientation.Portrait)]
     public class ScoreBoardActivity : Activity
     {
         GameEngine gameEngine;
