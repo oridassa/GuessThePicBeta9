@@ -12,7 +12,7 @@ using System.Text;
 
 namespace GuessThePicBeta9
 {
-    [Activity(Label = "LoginActivity")]
+    [Activity(Label = "LoginActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class LoginActivity : Activity, View.IOnClickListener
     {
         private EditText gameidinput;
@@ -22,6 +22,9 @@ namespace GuessThePicBeta9
             SetContentView(Resource.Layout.login_screen);
 
             this.gameidinput = FindViewById<EditText>(Resource.Id.gameid);
+        }
+        public override void OnBackPressed() //Disables the back button
+        {
         }
         public async void OnClick(View v)
         {

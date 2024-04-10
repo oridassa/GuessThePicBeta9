@@ -56,7 +56,9 @@ namespace GuessThePicBeta9
 
             thread.Start();
         }
-
+        public override void OnBackPressed() //Disables the back button
+        {
+        }
         private void SetFinaleScreen()
         {
             roundCounter.Text = $"Game Ended\nFinal Scoreboard";

@@ -64,6 +64,7 @@
     <Reference Include="System.Numerics.Vectors" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackgroundMusicService.cs" />
     <Compile Include="CurrentPlayer.cs" />
     <Compile Include="DeserializedImageJson.cs" />
     <Compile Include="FirebaseActions.cs" />
@@ -110,7 +111,9 @@
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_foreground.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_round.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <AndroidResource Include="Resources\Raw\background_music.mp3" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FirebaseDatabase.net">
       <Version>4.2.0</Version>

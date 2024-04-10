@@ -74,6 +74,9 @@ namespace GuessThePicBeta9
             var thread = new Thread(UpdateProgressBar);
             thread.Start();
         }
+        public override void OnBackPressed() //Disables the back button
+        {
+        }
 
         private void SetImage()
         {

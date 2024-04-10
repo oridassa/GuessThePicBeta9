@@ -305,7 +305,7 @@ namespace GuessThePicBeta9
             return await pointer
                 .Child("GameEngine")
                 .Child("Players")
-                .Child(CurrentPlayer.name)
+                .Child(name)
                 .Child("Ready")
                 .OnceSingleAsync<bool>();
         }

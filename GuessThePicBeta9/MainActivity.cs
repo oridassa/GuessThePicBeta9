@@ -34,7 +34,7 @@ namespace GuessThePicBeta9
             {
                 Toast.MakeText(this, e.Message, ToastLength.Short).Show();
             }
-            
+            StartMusic();
         }
         private async void RequestPrem(object sender, EventArgs e) //checks if the user gives the app premission to use his pictures. 
         {                                 
@@ -78,6 +78,15 @@ namespace GuessThePicBeta9
                     base.StartActivity(intent);
                 }
             }
+        }
+        private void StopMusic()
+        {
+            StopService(new Intent(this, typeof(BackgroundMusicService)));
+        }
+
+        private void StartMusic()
+        {
+            StartService(new Intent(this, typeof(BackgroundMusicService)));
         }
     }
 }

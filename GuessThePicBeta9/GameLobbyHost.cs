@@ -89,6 +89,9 @@ namespace GuessThePicBeta9
             //changes = new Thread(CheckForChanges);
             //changes.Start();
         }
+        public override void OnBackPressed() //Disables the back button
+        {
+        }
         public async void SetPlayersList()
         {
             
