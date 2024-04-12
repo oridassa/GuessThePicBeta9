@@ -40,4 +40,22 @@
         android:layout_margin="10dp"
         android:backgroundTint="@android:color/holo_green_dark"
         />
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:gravity="right|bottom"
+        android:orientation="vertical"
+        >
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_margin= "10dp"
+            android:src="@drawable/son"
+            android:scaleType="centerInside"
+            android:onClick="onClick"
+            android:id="@+id/MusicStatus"
+            />
+        </LinearLayout>
+
 </LinearLayout>

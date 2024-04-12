@@ -2,6 +2,7 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Media;
 using Android.Media.TV;
 using Android.OS;
 using Android.Runtime;
@@ -34,8 +35,10 @@ namespace GuessThePicBeta9
             {
                 Toast.MakeText(this, e.Message, ToastLength.Short).Show();
             }
-            StartMusic();
+            if(MusicServiceSingleton.ShouldTurnOnMusic())
+                StartMusic();
         }
+
         private async void RequestPrem(object sender, EventArgs e) //checks if the user gives the app premission to use his pictures. 
         {                                 
             var premission = await Permissions.CheckStatusAsync<Permissions.StorageRead>();
@@ -49,6 +52,12 @@ namespace GuessThePicBeta9
         }
         public void OnClick(View v)
         {
+            if(v.Id == Resource.Id.MusicStatus)
+            {
+                ImageButton ib = (ImageButton)v;
+                ChangeMusicStatus(ib);
+                return;
+            }
             string name = nameInput.Text.ToString();
             Intent intent;
             Button b = (Button)v;
@@ -78,6 +87,20 @@ namespace GuessThePicBeta9
                     base.StartActivity(intent);
                 }
             }
+        }
+
+        private void ChangeMusicStatus(ImageButton ib)
+        {
+            if(MusicServiceSingleton.ShouldTurnOnMusic())
+            {
+                StartMusic();
+                ib.SetImageResource(Resource.Drawable.son);
+            }
+            else
+            {
+                StopMusic();
+                ib.SetImageResource(Resource.Drawable.soff);
+            }    
         }
         private void StopMusic()
         {
