@@ -29,5 +29,14 @@ namespace GuessThePicBeta9
                 return true;
             }
         }
+        //static private void StopMusic()
+        //{
+        //    StopService(new Intent(this, typeof(BackgroundMusicService)));
+        //}
+
+        //ststic private void StartMusic()
+        //{
+        //    StartService(new Intent(this, typeof(BackgroundMusicService)));
+        //}
     }
 }

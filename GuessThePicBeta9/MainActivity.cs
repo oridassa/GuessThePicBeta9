@@ -31,16 +31,17 @@ namespace GuessThePicBeta9
                 //btn.Click += RequestPrem;
 
                 nameInput = FindViewById<EditText>(Resource.Id.name);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Toast.MakeText(this, e.Message, ToastLength.Short).Show();
             }
-            if(MusicServiceSingleton.ShouldTurnOnMusic())
+            if (MusicServiceSingleton.ShouldTurnOnMusic())
                 StartMusic();
         }
 
         private async void RequestPrem(object sender, EventArgs e) //checks if the user gives the app premission to use his pictures. 
-        {                                 
+        {
             var premission = await Permissions.CheckStatusAsync<Permissions.StorageRead>();
             Toast.MakeText(this, premission.ToString(), ToastLength.Short).Show();
         }
@@ -52,7 +53,7 @@ namespace GuessThePicBeta9
         }
         public void OnClick(View v)
         {
-            if(v.Id == Resource.Id.MusicStatus)
+            if (v.Id == Resource.Id.MusicStatus)
             {
                 ImageButton ib = (ImageButton)v;
                 ChangeMusicStatus(ib);
@@ -91,7 +92,7 @@ namespace GuessThePicBeta9
 
         private void ChangeMusicStatus(ImageButton ib)
         {
-            if(MusicServiceSingleton.ShouldTurnOnMusic())
+            if (MusicServiceSingleton.ShouldTurnOnMusic())
             {
                 StartMusic();
                 ib.SetImageResource(Resource.Drawable.son);
@@ -100,7 +101,7 @@ namespace GuessThePicBeta9
             {
                 StopMusic();
                 ib.SetImageResource(Resource.Drawable.soff);
-            }    
+            }
         }
         private void StopMusic()
         {

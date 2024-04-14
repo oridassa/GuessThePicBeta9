@@ -17,6 +17,7 @@ namespace GuessThePicBeta9
         public bool isAdmin { get; private set; }
         public int points { get; private set; }
         public bool Ready { get; set; }
+        public bool GameEngineDownloaded { get; set; }
 
         public Player(string name, bool isAdmin)
         {
@@ -24,6 +25,7 @@ namespace GuessThePicBeta9
             this.isAdmin = isAdmin;
             this.points = 0;
             this.Ready = false;
+            this.GameEngineDownloaded = false;
         }
 
         public void AddPoints(int timePoints)

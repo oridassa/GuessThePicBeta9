@@ -42,6 +42,8 @@ namespace GuessThePicBeta9
             if (CurrentPlayer.playerPointer.isAdmin == true)
             {
                 await pointer.Child("GameStarted").PutAsync(false);
+                await pointer.Child("DownloadGameEngine").PutAsync(false);
+                await pointer.Child("IsLobbyOn").PutAsync(true);
                 await UploadGamesEngine(gameEngine);
             }
 
@@ -74,8 +76,9 @@ namespace GuessThePicBeta9
         }
         public static async Task<bool> KillLobby()
         {
-            await pointer.DeleteAsync();
-            //pointer = null;
+            //await pointer.DeleteAsync();
+            await pointer.Child("IsLobbyOn").PutAsync<bool>(false); 
+            pointer = null;
             return true;
         }
         public static async Task<bool> IsGameOnline(string gameID)
@@ -193,6 +196,19 @@ namespace GuessThePicBeta9
                     .OnceSingleAsync<bool>();
             return false;
         }
+        public static async Task<bool> ShouldDownloadGameEngine()
+        {
+            bool? flag;
+            if (pointer != null)
+            {
+                flag = await pointer
+                    .Child("DownloadGameEngine")
+                    .OnceSingleAsync<bool>();
+                if(flag == null) return false;
+                if(flag == true) return true;
+            }
+            return false;
+        }
         public static bool IsPointerNull()
         {
             return pointer == null;
@@ -239,6 +255,12 @@ namespace GuessThePicBeta9
         {
             await pointer
                 .Child("GameStarted")
+                .PutAsync<bool>(true);
+        }
+        public static async void StartGameEngineDownload()
+        {
+            await pointer
+                .Child("DownloadGameEngine")
                 .PutAsync<bool>(true);
         }
         public static async Task<Image> GetImageByPointer(ImageDatabasePointer imagePointer)
@@ -300,6 +322,7 @@ namespace GuessThePicBeta9
                 .Child("Ready")
                 .PutAsync<bool>(true);
         }
+
         public static async Task<bool> IsPlayerReady(string name)
         {
             return await pointer
@@ -309,6 +332,7 @@ namespace GuessThePicBeta9
                 .Child("Ready")
                 .OnceSingleAsync<bool>();
         }
+
         public static async Task<bool> IsAllReady(IList<string> playersList)
         {
             foreach(string player in playersList)
@@ -319,6 +343,41 @@ namespace GuessThePicBeta9
                 }
             }
             return true;
+        }
+        public static async void SetPlayerDownloadedGameEngine()
+        {
+            await pointer
+                .Child("GameEngine")
+                .Child("Players")
+                .Child(CurrentPlayer.name)
+                .Child("GameEngineDownloaded")
+                .PutAsync<bool>(true);
+        }
+        public static async Task<bool> IsPlayerDownloadedGameEngine(string name)
+        {
+            return await pointer
+                .Child("GameEngine")
+                .Child("Players")
+                .Child(name)
+                .Child("GameEngineDownloaded")
+                .OnceSingleAsync<bool>();
+        }
+        public static async Task<bool> IsDownloadedGameEngine(IList<string> playersList)
+        {
+            foreach (string player in playersList)
+            {
+                if (!await IsPlayerDownloadedGameEngine(player))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static async Task<bool> IsLobbyOn()
+        {
+            return await pointer
+                .Child("IsLobbyOn")
+                .OnceSingleAsync<bool>();
         }
     }
 }

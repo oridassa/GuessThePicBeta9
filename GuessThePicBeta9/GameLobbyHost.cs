@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Net;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
@@ -20,6 +21,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
+//using static Xamarin.Essentials.Platform;
 
 namespace GuessThePicBeta9
 {
@@ -123,10 +125,7 @@ namespace GuessThePicBeta9
             Button b = (Button)v;
             if (b.Text == "Quit to main menu")
             {
-                stopThread = true;
-                await ReturnToMainMenuActions();
-                intent = new Intent(this, typeof(MainActivity));
-                base.StartActivity(intent);
+                QuitToMainMenu();
             }
             else if (b.Text == "Insert photos")
             {
@@ -145,8 +144,20 @@ namespace GuessThePicBeta9
                 temp.ScambleImageList();
 
                 await FirebaseActions.UploadGamesEngine(temp);
-                FirebaseActions.StartGame();
+                FirebaseActions.StartGameEngineDownload();
+
+                CheckForDownloadedGameEngine();
+
+                //FirebaseActions.StartGame();
             }
+        }
+        private async void QuitToMainMenu()
+        {
+            Intent intent;
+            stopThread = true;
+            await ReturnToMainMenuActions();
+            intent = new Intent(this, typeof(MainActivity));
+            base.StartActivity(intent);
         }
 
         public void DisableStartGameButton()
@@ -162,6 +173,7 @@ namespace GuessThePicBeta9
 
         public async Task<bool> ReturnToMainMenuActions()
         {
+            stopThread = true;
             if (currentPlayer.isAdmin)
                 await KillLobby();
             else
@@ -231,21 +243,7 @@ namespace GuessThePicBeta9
         {
 
         }
-        public async void StartGame()
-        {
-            Intent intent;
-            GameEngine g = await FirebaseActions.GetGameEngine();
-            GameEngineSingleton.SetInstance(g);
-            if (g.HasImages())
-            {
-                intent = new Intent(this, typeof(GameplayScreen));
-                base.StartActivity(intent);
-            }
-            else
-            {
-                Toast.MakeText(this, "No pictures added", ToastLength.Short).Show();
-            }
-        }
+        
         public void GenerateGameID()
         {
             string id = gameInitiator.GetNewGameID();
@@ -257,33 +255,7 @@ namespace GuessThePicBeta9
             return await FirebaseActions.KillLobby();
         }
 
-        private async void CheckForChanges()
-        {
-            while (!stopThread)
-            {
-                Thread.Sleep(500);
-                if (stopThread)
-                {
-                    break;
-                }
-                bool isGameStarted = false;
-                if (!stopThread)
-                {
-                    SetPlayersList();
-                    isGameStarted = await FirebaseActions.IsGameStarted();
-                    if (isGameStarted)
-                    {
-                        stopThread = true;
-                        StartGame();
-                    }
-                }
-            }
-        }
-        public void StopListeningForChanges()
-        {
-            //this.changes.Abort();
-            this.stopThread = true;
-        }
+        
         private void SetPhotosLeft()
         {
             photosLeft.Text = "Add 4 more photos";
@@ -302,6 +274,67 @@ namespace GuessThePicBeta9
                 picturesLeftCount--;
                 photosLeft.Text = $"Add {picturesLeftCount} more photos";
             }
+        }
+        private async void CheckForChanges()
+        {
+            while (!stopThread)
+            {
+                if (stopThread)
+                {
+                    break;
+                }
+                bool shouldDownloadGameEngine = false;
+                if (!stopThread)
+                {
+                    SetPlayersList();
+                    shouldDownloadGameEngine = await FirebaseActions.ShouldDownloadGameEngine();
+                    if (shouldDownloadGameEngine)
+                    {
+                        stopThread = true;
+                        DownloadGameEngine();
+                        return;
+                    }
+                }
+                if(!(await FirebaseActions.IsLobbyOn()))
+                {
+                    QuitToMainMenu();
+                }
+                Thread.Sleep(500);
+            }
+        }
+        public async void DownloadGameEngine()
+        {
+            GameEngine g = await FirebaseActions.GetGameEngine();
+            GameEngineSingleton.SetInstance(g);
+
+            FirebaseActions.SetPlayerDownloadedGameEngine();
+            //need to do something to indicate that the game had been downloaded
+            WaitForStartGame();
+        }
+        public async void WaitForStartGame()
+        {
+            while (true)
+            {
+                if (await FirebaseActions.IsGameStarted())
+                {
+                    StartGame();
+                    return;
+                }
+                Thread.Sleep(100);
+            }
+            
+        }
+
+        public void StartGame()
+        {
+            Intent intent;
+            intent = new Intent(this, typeof(GameplayScreen));
+            base.StartActivity(intent);
+        }
+        public void StopListeningForChanges()
+        {
+            //this.changes.Abort();
+            this.stopThread = true;
         }
 
         public async void CheckForReadyPlayers()
@@ -324,6 +357,21 @@ namespace GuessThePicBeta9
                     }
                     else
                         DisableStartGameButton();
+                }
+            }
+        }
+        public async void CheckForDownloadedGameEngine()
+        {
+            while(true)
+            {
+                Thread.Sleep(500);
+                if (!FirebaseActions.IsPointerNull())
+                {
+                    if (await FirebaseActions.IsDownloadedGameEngine(this.playersArray))
+                    {
+                        FirebaseActions.StartGame();
+                        return;
+                    }
                 }
             }
         }
