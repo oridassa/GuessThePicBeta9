@@ -18,6 +18,9 @@ using System.Linq.Expressions;
 using AndroidX.AppCompat.View.Menu;
 using System.Runtime.InteropServices.ComTypes;
 using static Java.Util.Jar.Attributes;
+using static Android.Graphics.ColorSpace;
+using Java.Nio.FileNio;
+using AndroidX.Interpolator.View.Animation;
 
 
 namespace GuessThePicBeta9
@@ -397,6 +400,14 @@ namespace GuessThePicBeta9
             await pointer
                 .Child("MoveToNextRound")
                 .PutAsync<bool>(true);
+        }
+
+        public static async Task<bool> CanConnectToLobby(string gameID)
+        {
+            ChildQuery tempPointer = firebaseClient.Child("Games").Child(gameID);
+            if (await tempPointer.Child("IsLobbyOn").OnceSingleAsync<bool>() == false) return false;
+            if (await tempPointer.Child("DownloadGameEngine").OnceSingleAsync<bool>() == true) return false;
+            return true; //otherwise 
         }
     }
 }

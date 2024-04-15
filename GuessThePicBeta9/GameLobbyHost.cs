@@ -298,9 +298,13 @@ namespace GuessThePicBeta9
                         return;
                     }
                 }
-                if(!(await FirebaseActions.IsLobbyOn()))
+                if(!currentPlayer.isAdmin)
                 {
-                    QuitToMainMenu();
+                    if (!(await FirebaseActions.IsLobbyOn()))
+                    {
+                        QuitToMainMenu();
+                        return;
+                    }
                 }
                 Thread.Sleep(500);
             }

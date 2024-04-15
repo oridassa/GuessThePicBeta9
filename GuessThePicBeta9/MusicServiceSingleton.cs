@@ -14,7 +14,8 @@ namespace GuessThePicBeta9
 {
     static class MusicServiceSingleton
     {
-        private static bool IsMusicOn = false;
+        public static bool IsMusicOn = true;
+        public static bool DidMusicTurnOn = false;
 
         static public bool ShouldTurnOnMusic()
         {

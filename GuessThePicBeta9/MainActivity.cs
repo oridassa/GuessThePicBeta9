@@ -18,6 +18,7 @@ namespace GuessThePicBeta9
     public class MainActivity : AppCompatActivity, View.IOnClickListener
     {
         private EditText nameInput;
+        private ImageButton imageb;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             try
@@ -31,13 +32,23 @@ namespace GuessThePicBeta9
                 //btn.Click += RequestPrem;
 
                 nameInput = FindViewById<EditText>(Resource.Id.name);
+                imageb = FindViewById<ImageButton>(Resource.Id.MusicStatus);
             }
             catch (Exception e)
             {
                 Toast.MakeText(this, e.Message, ToastLength.Short).Show();
             }
-            if (MusicServiceSingleton.ShouldTurnOnMusic())
+            
+            
+            if (MusicServiceSingleton.DidMusicTurnOn == false)
+            {
                 StartMusic();
+                MusicServiceSingleton.DidMusicTurnOn = true;
+            }
+            else if(MusicServiceSingleton.IsMusicOn == false)
+            {
+                imageb.SetImageResource(Resource.Drawable.soff);
+            }
         }
 
         private async void RequestPrem(object sender, EventArgs e) //checks if the user gives the app premission to use his pictures. 

@@ -50,6 +50,12 @@ namespace GuessThePicBeta9
                     Toast.MakeText(this, "The Game Is Not Active", ToastLength.Short).Show();
                     return;
                 }
+                else if(!(await FirebaseActions.CanConnectToLobby(gameID)))
+                {
+                    CloseProgressDialog();
+                    Toast.MakeText(this, "Can't Connect To This Game", ToastLength.Short).Show();
+                    return;
+                }
                 else //this is when there is an active game
                 {
                     await FirebaseActions.GameSetup(gameID);
