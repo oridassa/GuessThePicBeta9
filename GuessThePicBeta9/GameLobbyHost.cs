@@ -139,6 +139,8 @@ namespace GuessThePicBeta9
                 List<ImageDatabasePointer> imageList = await FirebaseActions.GetImageDatabasePointerList();
                 GameEngine temp = await FirebaseActions.GetGameEngine();
 
+                CreateProgressDialog("Starting...");
+
                 temp.SetImageList(imageList);
                 await temp.SetCurrentImage();
                 temp.ScambleImageList();
@@ -292,6 +294,7 @@ namespace GuessThePicBeta9
                     {
                         stopThread = true;
                         DownloadGameEngine();
+                        CreateProgressDialog("Starting...");
                         return;
                     }
                 }
@@ -375,6 +378,13 @@ namespace GuessThePicBeta9
                 }
             }
         }
-
+        private void CreateProgressDialog(string message)
+        {
+            ProgressDialog p = ProgressDialog.Show(this, message, "Please wait", true);
+            p.SetCancelable(false);
+            p.SetProgressStyle(ProgressDialogStyle.Horizontal);
+            p.SetMessage("Loading...");
+            p.Show();
+        }
     }
 }

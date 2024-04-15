@@ -30,5 +30,6 @@
         android:text="ori:"
         android:textSize="30sp"
         android:id="@+id/score"
+        android:gravity="center"
         />
 </LinearLayout>

@@ -44,6 +44,7 @@ namespace GuessThePicBeta9
                 await pointer.Child("GameStarted").PutAsync(false);
                 await pointer.Child("DownloadGameEngine").PutAsync(false);
                 await pointer.Child("IsLobbyOn").PutAsync(true);
+                await pointer.Child("MoveToNextRound").PutAsync<bool>(false);
                 await UploadGamesEngine(gameEngine);
             }
 
@@ -378,6 +379,24 @@ namespace GuessThePicBeta9
             return await pointer
                 .Child("IsLobbyOn")
                 .OnceSingleAsync<bool>();
+        }
+        public static async void SetMoveToNextRoundFalse()
+        {
+            await pointer
+                .Child("MoveToNextRound")
+                .PutAsync<bool>(false);
+        }
+        public static async Task<bool> CanContinueToNextRound()
+        {
+            return await pointer
+                .Child("MoveToNextRound")
+                .OnceSingleAsync<bool>();
+        }
+        public static async void AllowPlayersToContinue()
+        {
+            await pointer
+                .Child("MoveToNextRound")
+                .PutAsync<bool>(true);
         }
     }
 }

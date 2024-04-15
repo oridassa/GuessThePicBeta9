@@ -8,6 +8,7 @@ using Firebase.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace GuessThePicBeta9
@@ -16,6 +17,7 @@ namespace GuessThePicBeta9
     public class LoginActivity : Activity, View.IOnClickListener
     {
         private EditText gameidinput;
+        private ProgressDialog progressDialog;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -40,9 +42,11 @@ namespace GuessThePicBeta9
             else if (b.Text == "Join Game")
             {
                 string gameID = gameidinput.Text.ToString();
+                CreateProgressDialog();
                 bool isGameIOnline = await FirebaseActions.IsGameOnline(gameID);
                 if (!isGameIOnline) 
                 {
+                    CloseProgressDialog();
                     Toast.MakeText(this, "The Game Is Not Active", ToastLength.Short).Show();
                     return;
                 }
@@ -58,8 +62,22 @@ namespace GuessThePicBeta9
                     intent = new Intent(this, typeof(GameLobbyHost));
                     base.StartActivity(intent);
                 }
-                //intent = new Intent(this, typeof(GameLobbyHost));
-                //base.StartActivity(intent);
+            }
+        }
+        private void CreateProgressDialog()
+        {
+            progressDialog = ProgressDialog.Show(this, "Searching lobby", "Please wait", true);
+            progressDialog.SetCancelable(false);
+            progressDialog.SetProgressStyle(ProgressDialogStyle.Horizontal);
+            progressDialog.SetMessage("Loading...");
+            progressDialog.Show();
+        }
+        private void CloseProgressDialog()
+        {
+            if (progressDialog != null && progressDialog.IsShowing)
+            {
+                progressDialog.Dismiss();
+                progressDialog = null; // Reset the reference
             }
         }
     }

@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
+    android:background="@drawable/background_picture"
     >
     <TextView
         android:layout_width="match_parent"
@@ -27,7 +28,8 @@
         android:layout_height="60dp"
         android:id="@+id/gameid"
         android:hint="Game ID"
-        android:inputType="text"
+        android:inputType="number"
+        android:gravity="center"
         />
         <Button
             android:layout_width="300dp"
@@ -36,6 +38,7 @@
             android:text="Join Game"
             android:id="@+id/joingame"
             android:onClick="onClick"
+            android:backgroundTint="@android:color/holo_green_dark"
         />
         <LinearLayout
         android:layout_width="match_parent"
@@ -51,6 +54,7 @@
             android:text="Quit to main menu"
             android:id="@+id/quit"
             android:onClick="onClick"
+            android:backgroundTint="@android:color/holo_green_dark"
         />
     </LinearLayout>
 </LinearLayout>

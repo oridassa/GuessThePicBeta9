@@ -6,6 +6,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Java.Nio.Channels;
 using Java.Util.Logging;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,8 @@ namespace GuessThePicBeta9
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.score_board);
 
+            
+
             roundCounter = FindViewById<TextView>(Resource.Id.roundcount);
             score = FindViewById<TextView>(Resource.Id.score);
             this.progressBar = FindViewById<ProgressBar>(Resource.Id.progressBar);
@@ -52,9 +55,12 @@ namespace GuessThePicBeta9
 
             await SetScoreBoard();
 
-            var thread = new Thread(Timer);
+            var thread = new Thread(HostTimerControl);
 
             thread.Start();
+
+            WaitForNextRound();
+
         }
         public override void OnBackPressed() //Disables the back button
         {
@@ -69,6 +75,7 @@ namespace GuessThePicBeta9
             base.OnStart();
 
         }
+        /*
         public void Timer()
         {
             for (int i = 0; i <= loopLength; i++)
@@ -82,6 +89,21 @@ namespace GuessThePicBeta9
 
             // After 5 seconds, post the function to be executed on the UI thread
             handler.Post(() => Logic());
+        }
+        */
+        public async void WaitForNextRound()
+        {
+            while (await FirebaseActions.CanContinueToNextRound() == false)
+            {
+                Thread.Sleep(100);
+            }
+            Logic();
+        }
+        public void HostTimerControl()
+        {
+            for (int i = 0; i <= loopLength; i++)
+                Thread.Sleep(5);
+            FirebaseActions.AllowPlayersToContinue();
         }
         public void WriteScore()
         {
