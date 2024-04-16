@@ -136,14 +136,14 @@ namespace GuessThePicBeta9
             else if (b.Text == "Start Game")
             {
                 //StopListeningForChanges();
+                CreateProgressDialog("Starting...");
+
                 List<ImageDatabasePointer> imageList = await FirebaseActions.GetImageDatabasePointerList();
                 GameEngine temp = await FirebaseActions.GetGameEngine();
 
-                CreateProgressDialog("Starting...");
-
                 temp.SetImageList(imageList);
-                await temp.SetCurrentImage();
                 temp.ScambleImageList();
+                await temp.SetCurrentImage();
 
                 await FirebaseActions.UploadGamesEngine(temp);
                 FirebaseActions.StartGameEngineDownload();
