@@ -17,7 +17,7 @@ namespace GuessThePicBeta9
 {
     public class ImageDatabasePointer
     {
-        public string[] Keys { get; set; }
+        public string[] Keys { get; set; } //the directions to the image from pointer
         public ImageDatabasePointer(string player, string imgKey) 
         { 
             Keys = new string[] { "UsersPictures", player, imgKey };
@@ -43,7 +43,7 @@ namespace GuessThePicBeta9
         {
             return Keys[2];
         }
-        public async Task<Image> GetImageObject()
+        public async Task<Image> GetImageObject() //returns the coresponding image for the imagePointer
         {
             return await FirebaseActions.GetImageByPointer(this);
         }

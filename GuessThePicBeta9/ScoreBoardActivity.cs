@@ -22,12 +22,11 @@ namespace GuessThePicBeta9
     public class ScoreBoardActivity : Activity
     {
         GameEngine gameEngine;
-        TextView score;
+        TextView score; //score of all of the players
         Android.OS.Handler handler;
-        private ProgressBar progressBar;
-        TextView roundCounter;
+        TextView roundCounter; //current rount
 
-        private int loopLength = 1000;
+        private int loopLength = 1000; //length of the loop used to time this screen
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -37,7 +36,6 @@ namespace GuessThePicBeta9
 
             roundCounter = FindViewById<TextView>(Resource.Id.roundcount);
             score = FindViewById<TextView>(Resource.Id.score);
-            this.progressBar = FindViewById<ProgressBar>(Resource.Id.progressBar);
 
             gameEngine = GameEngineSingleton.GetInstance();
 
@@ -48,7 +46,6 @@ namespace GuessThePicBeta9
                 SetRoundCounter();
             else
             {
-                progressBar.Max = 2000;
                 loopLength = 2000;
                 SetFinaleScreen();
             }
@@ -73,25 +70,8 @@ namespace GuessThePicBeta9
         protected override void OnStart()
         {
             base.OnStart();
-
         }
-        /*
-        public void Timer()
-        {
-            for (int i = 0; i <= loopLength; i++)
-            {
-                // Update progress on UI thread
-                handler.Post(() => progressBar.Progress = i);
-
-                // Sleep for a short duration to simulate progress
-                Thread.Sleep(5);
-            }
-
-            // After 5 seconds, post the function to be executed on the UI thread
-            handler.Post(() => Logic());
-        }
-        */
-        public async void WaitForNextRound()
+        public async void WaitForNextRound() //waits for the flag in the database to change
         {
             while (await FirebaseActions.CanContinueToNextRound() == false)
             {
@@ -99,17 +79,17 @@ namespace GuessThePicBeta9
             }
             Logic();
         }
-        public void HostTimerControl()
+        public void HostTimerControl() //keeps the time to change the flag as the host
         {
             for (int i = 0; i <= loopLength; i++)
                 Thread.Sleep(5);
             FirebaseActions.AllowPlayersToContinue();
         }
-        public void WriteScore()
+        public void WriteScore() 
         {
             this.score.Text = $"{CurrentPlayer.playerPointer.name}: {CurrentPlayer.playerPointer.points}";
         }
-        public void Logic()
+        public void Logic() //whats happen when the scoreboard screen ends
         {
             if (gameEngine.IsLastImage())
             {
@@ -122,7 +102,7 @@ namespace GuessThePicBeta9
                 base.StartActivity(intent);
             }
         }
-        public async void FinishGame()
+        public async void FinishGame() //if its the last scoreboard
         {
             if (CurrentPlayer.playerPointer.isAdmin) await FirebaseActions.KillLobby();
             CurrentPlayer.DeletePlayerInstance();

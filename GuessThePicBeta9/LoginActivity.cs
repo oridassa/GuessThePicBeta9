@@ -16,8 +16,8 @@ namespace GuessThePicBeta9
     [Activity(Label = "LoginActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class LoginActivity : Activity, View.IOnClickListener
     {
-        private EditText gameidinput;
-        private ProgressDialog progressDialog;
+        private EditText gameidinput; //text input for the gameID
+        private ProgressDialog progressDialog; //dialog for the time between the button press and the answer from the database
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -28,7 +28,7 @@ namespace GuessThePicBeta9
         public override void OnBackPressed() //Disables the back button
         {
         }
-        public async void OnClick(View v)
+        public async void OnClick(View v) //detects and deals with button presses
         {
             Intent intent;
             Button b = (Button)v;

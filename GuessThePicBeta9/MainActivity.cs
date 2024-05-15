@@ -17,8 +17,8 @@ namespace GuessThePicBeta9
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true, ScreenOrientation = ScreenOrientation.Portrait)]
     public class MainActivity : AppCompatActivity, View.IOnClickListener
     {
-        private EditText nameInput;
-        private ImageButton imageb;
+        private EditText nameInput; //איפה שמכניסים את השם
+        private ImageButton imageb; //הכפתור של המוזיקה
         protected override void OnCreate(Bundle savedInstanceState)
         {
             try
@@ -27,9 +27,6 @@ namespace GuessThePicBeta9
                 Xamarin.Essentials.Platform.Init(this, savedInstanceState);
                 // Set our view from the "main" layout resource
                 SetContentView(Resource.Layout.activity_main);
-
-                //Button btn = FindViewById<Button>(Resource.Id.check);
-                //btn.Click += RequestPrem;
 
                 nameInput = FindViewById<EditText>(Resource.Id.name);
                 imageb = FindViewById<ImageButton>(Resource.Id.MusicStatus);
@@ -40,7 +37,7 @@ namespace GuessThePicBeta9
             }
             
             
-            if (MusicServiceSingleton.DidMusicTurnOn == false)
+            if (MusicServiceSingleton.DidMusicTurnOn == false) //music ctrl
             {
                 StartMusic();
                 MusicServiceSingleton.DidMusicTurnOn = true;
@@ -62,7 +59,7 @@ namespace GuessThePicBeta9
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-        public void OnClick(View v)
+        public void OnClick(View v) //detects and deals with button presses
         {
             if (v.Id == Resource.Id.MusicStatus)
             {
@@ -101,7 +98,7 @@ namespace GuessThePicBeta9
             }
         }
 
-        private void ChangeMusicStatus(ImageButton ib)
+        private void ChangeMusicStatus(ImageButton ib) //onpress the music button this function decides if it needs to turn the music on or off
         {
             if (MusicServiceSingleton.ShouldTurnOnMusic())
             {

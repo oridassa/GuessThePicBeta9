@@ -15,8 +15,8 @@ namespace GuessThePicBeta9
 {
     public class Image
     {
-        public byte[] ImageBytesData { get; set; }
-        public string SourcePlayer { get; set; }
+        public byte[] ImageBytesData { get; set; } //נתונים של התמונה
+        public string SourcePlayer { get; set; } //a player which the image came from
         public Image(byte[] ImageBytesData, string SourcePlayer)//gets name and byte data
         {
             this.ImageBytesData = ImageBytesData;
@@ -33,7 +33,7 @@ namespace GuessThePicBeta9
             this.SourcePlayer = CurrentPlayer.name;
         }
 
-        public Image(string base64Image)
+        public Image(string base64Image) 
         {
             this.SourcePlayer = CurrentPlayer.name;
             this.ImageBytesData = this.ConvertBase64ToBytes(base64Image);
@@ -66,12 +66,12 @@ namespace GuessThePicBeta9
             return imageBytes;
         }
 
-        public Bitmap GetBipmapImage()
+        public Bitmap GetBipmapImage() //returns the image as a bitmap
         {
             Bitmap bitmap = BitmapFactory.DecodeByteArray(this.ImageBytesData, 0, this.ImageBytesData.Length);
             return bitmap;
         }
-        public bool SetImageToImageview(ImageView imageView)
+        public bool SetImageToImageview(ImageView imageView) //sets the image to an imageView
         {
             if (this.ImageBytesData != null)
             {

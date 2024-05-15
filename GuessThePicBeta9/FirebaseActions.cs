@@ -29,17 +29,14 @@ namespace GuessThePicBeta9
     {
         private static FirebaseClient firebaseClient = new
             FirebaseClient("https://guessthepic-4d369-default-rtdb.europe-west1.firebasedatabase.app/");
-        private static ChildQuery pointer;
-        public static string GetPlayersArray()
-        {
-            throw new NotImplementedException();
-        }
-        public static async Task<bool> UploadGamesEngine(GameEngine g)
+        private static ChildQuery pointer; //current game json pointer 
+
+        public static async Task<bool> UploadGamesEngine(GameEngine g) //uploads the gameEngine to firebase
         {
             await pointer.Child("GameEngine").PutAsync<GameEngine>(g);
             return true;
         }
-        public static async Task<bool> GameSetup(string gameID, GameEngine gameEngine = null)
+        public static async Task<bool> GameSetup(string gameID, GameEngine gameEngine = null) //sets up all of the flags for the game
         {
             SetDatabasePointer(gameID);
             if (CurrentPlayer.playerPointer.isAdmin == true)
@@ -52,24 +49,21 @@ namespace GuessThePicBeta9
             }
 
             return true;
-            //await pointer.Child(gameID).Child("Images").PutAsync();
-
         }
-        public static void SetDatabasePointer(string gameID)
+        public static void SetDatabasePointer(string gameID) //sets the pointer to the current game Json
         {
             pointer = firebaseClient.Child("Games").Child(gameID);
         }
-        public static async Task<bool> UploadImageUser(Image img)
+        public static async Task<bool> UploadImageUser(Image img) //adds an image to the database
         {
-            //TODO: Add img to a static location at the firebase database where the host could add the pic to the game engine
             var result = await pointer
                 .Child("UsersPictures")
                 .Child($"{CurrentPlayer.playerPointer.name}")
                 .PostAsync<Image>(img);
-            AddToImagePointerDictionaryt(result.Key);
+            AddToImagePointerDictionary(result.Key);
             return true;
         }
-        public static async void AddToImagePointerDictionaryt(string imageKey)
+        public static async void AddToImagePointerDictionary(string imageKey)
         {
             ImageDatabasePointer dbPointer = new ImageDatabasePointer(imageKey);
             
@@ -78,20 +72,19 @@ namespace GuessThePicBeta9
                 .Child(CurrentPlayer.name)
                 .PostAsync(dbPointer);
         }
-        public static async Task<bool> KillLobby()
+        public static async Task<bool> KillLobby() //ends the lobby
         {
-            //await pointer.DeleteAsync();
             await pointer.Child("IsLobbyOn").PutAsync<bool>(false); 
             pointer = null;
             return true;
         }
-        public static async Task<bool> IsGameOnline(string gameID)
+        public static async Task<bool> IsGameOnline(string gameID) //checks in a game is on
         {
             List<string> listOfKeys = await GetActiveGames();
             return listOfKeys.Contains(gameID);
 
         }
-        public static async Task<List<string>> GetActiveGames()
+        public static async Task<List<string>> GetActiveGames() //gets a list of the active games
         {
             List<string> listOfKeys = ExtractKeysFromJson(await firebaseClient.Child("Games").OnceAsJsonAsync());
             return listOfKeys;
@@ -118,12 +111,12 @@ namespace GuessThePicBeta9
 
             return keys;
         }
-        public static async Task<GameEngine> GetGameEngine()
+        public static async Task<GameEngine> GetGameEngine() //returns the gameEngine
         {
             GameEngine gameEngine = await pointer.Child("GameEngine").OnceSingleAsync<GameEngine>();
             return gameEngine;
         }
-        public static async void AddPlayerToLobby(Player player)
+        public static async void AddPlayerToLobby(Player player) 
         {
             await pointer
                 .Child("GameEngine")
@@ -138,11 +131,7 @@ namespace GuessThePicBeta9
                         .Child("Players").OnceSingleAsync<Dictionary<string, Player>>();
             return lst;
         }
-        //public static async Task<int> GetLastIndexOfPlayer() //returns the index of the last player who joined a game
-        //{
-        //    List<Player> lst = await GetPlayersList();
-        //    return lst.Count() - 1;
-        //}
+
         public static async Task<string[]> GetPlayerNamesArray()
         {
             Dictionary<string, Player> players = null;
@@ -151,7 +140,7 @@ namespace GuessThePicBeta9
 
             return players.Keys.ToArray<string>();
         }
-        public static async void ExitFromLobby(string name)
+        public static async void ExitFromLobby(string name) //exits from a lobby
         {
             await pointer
                 .Child("GameEngine")
@@ -180,18 +169,6 @@ namespace GuessThePicBeta9
                 .Child(name)
                 .DeleteAsync();
         }
-        public static IDisposable SubscribeTothePlayersList(Action<string[]> setPlayersList)
-        {
-            return pointer
-                .Child("GameEngine")
-                .Child("Players")
-                .AsObservable<Dictionary<string, Player>>()
-                .Subscribe(players =>
-                {
-                    string[] arr = players.Object.Keys.ToArray();
-                    setPlayersList(arr);
-                });
-        }
         public static async Task<bool> IsGameStarted()
         {
             if(pointer != null) 
@@ -200,7 +177,7 @@ namespace GuessThePicBeta9
                     .OnceSingleAsync<bool>();
             return false;
         }
-        public static async Task<bool> ShouldDownloadGameEngine()
+        public static async Task<bool> ShouldDownloadGameEngine() //check if a player should download the GameEngine
         {
             bool? flag;
             if (pointer != null)
@@ -217,21 +194,15 @@ namespace GuessThePicBeta9
         {
             return pointer == null;
         }
-        //public static async Task<List<Image>> GetUsersImages()
-        //{
-        //    string jsonString = await pointer.
-        //        Child("UsersPictures")
-        //        .OnceAsJsonAsync();
-        //    return ExtractImagesFromJson<Image>(jsonString);
-        //}
-        public static async Task<List<ImageDatabasePointer>> GetImageDatabasePointerList()
+
+        public static async Task<List<ImageDatabasePointer>> GetImageDatabasePointerList() //gets a list of all of the DatabaseImagePointers
         {
             string jsonString = await pointer.
                 Child("ImagePointerDictionary")
                 .OnceAsJsonAsync();
             return ExtractImagesFromJson(jsonString);
         }
-        public static List<ImageDatabasePointer> ExtractImagesFromJson(string jsonString) //this function finally works!!!!
+        public static List<ImageDatabasePointer> ExtractImagesFromJson(string jsonString) 
         {
             List<ImageDatabasePointer> images = new List<ImageDatabasePointer>();
             try
@@ -255,19 +226,19 @@ namespace GuessThePicBeta9
             return images;
         }
 
-        public static async void StartGame()
+        public static async void StartGame() //changes the GameStarted flag to true
         {
             await pointer
                 .Child("GameStarted")
                 .PutAsync<bool>(true);
         }
-        public static async void StartGameEngineDownload()
+        public static async void StartGameEngineDownload() //changes the DownloadGameEngine flag to true
         {
             await pointer
                 .Child("DownloadGameEngine")
                 .PutAsync<bool>(true);
         }
-        public static async Task<Image> GetImageByPointer(ImageDatabasePointer imagePointer)
+        public static async Task<Image> GetImageByPointer(ImageDatabasePointer imagePointer) //gets an image from the database with ImageDatabasePointer
         {
             return await pointer
                 .Child(imagePointer.First())
@@ -275,7 +246,7 @@ namespace GuessThePicBeta9
                 .Child(imagePointer.Third())
                 .OnceSingleAsync<Image>();
         }
-        public static async void UploadNamePointsString() //for current user5
+        public static async void UploadNamePointsString() //for current user
         {
             await pointer
                 .Child("PointString")
@@ -287,7 +258,7 @@ namespace GuessThePicBeta9
             string jsonString = await pointer.
                 Child("PointString")
                 .OnceAsJsonAsync();
-            List<string> lst = ExtractListStringFromJson(jsonString);
+            List<string> lst = SortByPoints(ExtractListStringFromJson(jsonString)); //for the list of points to be sorted
             string s = "";
             foreach (string playerPoints in lst) 
             {
@@ -296,7 +267,16 @@ namespace GuessThePicBeta9
             }
             return s;
         }
-        public static List<string> ExtractListStringFromJson(string jsonString) //this function finally works!!!!
+        public static List<string> SortByPoints(List<string> data) //sorts the points string by points
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            return data.OrderByDescending(x => int.Parse(x.Split(':')[1].Trim())).ToList(); //lambda
+        }
+        public static List<string> ExtractListStringFromJson(string jsonString)
         {
             List<string> strings = new List<string>();
             try
@@ -317,7 +297,7 @@ namespace GuessThePicBeta9
 
             return strings;
         }
-        public static async void SetPlayerReady()
+        public static async void SetPlayerReady() 
         {
             await pointer
                 .Child("GameEngine")
@@ -327,7 +307,7 @@ namespace GuessThePicBeta9
                 .PutAsync<bool>(true);
         }
 
-        public static async Task<bool> IsPlayerReady(string name)
+        public static async Task<bool> IsPlayerReady(string name) //checks if a certain player is ready
         {
             return await pointer
                 .Child("GameEngine")
@@ -337,7 +317,7 @@ namespace GuessThePicBeta9
                 .OnceSingleAsync<bool>();
         }
 
-        public static async Task<bool> IsAllReady(IList<string> playersList)
+        public static async Task<bool> IsAllReady(IList<string> playersList)//checks if all of the players are ready
         {
             foreach(string player in playersList)
             {
@@ -348,7 +328,7 @@ namespace GuessThePicBeta9
             }
             return true;
         }
-        public static async void SetPlayerDownloadedGameEngine()
+        public static async void SetPlayerDownloadedGameEngine() //saying that the currentPlayer downloaded the gameEngine
         {
             await pointer
                 .Child("GameEngine")
@@ -402,7 +382,7 @@ namespace GuessThePicBeta9
                 .PutAsync<bool>(true);
         }
 
-        public static async Task<bool> CanConnectToLobby(string gameID)
+        public static async Task<bool> CanConnectToLobby(string gameID) //checking if a player can connect to a lobby by GameID
         {
             ChildQuery tempPointer = firebaseClient.Child("Games").Child(gameID);
             if (await tempPointer.Child("IsLobbyOn").OnceSingleAsync<bool>() == false) return false;

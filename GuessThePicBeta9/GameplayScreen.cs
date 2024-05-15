@@ -27,26 +27,26 @@ namespace GuessThePicBeta9
     [Activity(Label = "GameplayScreen", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class GameplayScreen : Activity, View.IOnClickListener
     {
-        private TextView roundcounter;
-        private ImageView imageView;
-        private GridLayout grid;
+        private TextView roundcounter; //shows the round number
+        private ImageView imageView; //current image shown
+        private GridLayout grid; //grid of the buttons
 
         private ProgressBar progressBar;
         private Handler handler = new Handler();
 
         private Button pick;
 
-        private IList<Button> buttons;
+        private IList<Button> buttons; //list of buttons
 
         List<string> playersArray;
 
         private Player currentPlayer = CurrentPlayer.playerPointer;
 
-        private int timePoints;
+        private int timePoints; //Time taken to pick an answer
+         
+        private Image image; //imaged used in the round
 
-        private Image image;
-
-        GameEngine gameEngine;
+        GameEngine gameEngine; //gameEngine
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);

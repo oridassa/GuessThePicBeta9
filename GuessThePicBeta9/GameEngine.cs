@@ -17,11 +17,11 @@ namespace GuessThePicBeta9
 {
     public class GameEngine
     {
-        public IList<ImageDatabasePointer> ImageList { get; private set; }
-        public int CurrentImageIndex { get; private set; }
-        public Dictionary<string, Player> Players { get; private set; }
+        public IList<ImageDatabasePointer> ImageList { get; private set; } //list of all of the Images used in the game 
+        public int CurrentImageIndex { get; private set; } 
+        public Dictionary<string, Player> Players { get; private set; } //כל השחקנים
         public string ID { get; set; }
-        public Image? CurrentImage { get; set; }
+        public Image CurrentImage { get; set; }
 
         public GameEngine()
         {
@@ -69,7 +69,7 @@ namespace GuessThePicBeta9
         {
             this.ImageList = ImageList;
         }
-        public void ScambleImageList()
+        public void ScambleImageList() //מארבב את רשימת התמונות
         {
             System.Random rng = new System.Random();
             int n = ImageList.Count;

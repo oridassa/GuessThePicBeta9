@@ -28,18 +28,18 @@ namespace GuessThePicBeta9
     [Activity(Label = "GameLobbyHost", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class GameLobbyHost : Activity, View.IOnClickListener
     {
-        private ListView listView;
-        private TextView gameidview;
+        private ListView listView; //list of the players
+        private TextView gameidview; //gameID
         private Button startGameButton;
-        private GameEngine gameEngine;
+        private GameEngine gameEngine; //gameEngine for the rest of the game
         private GameInitiator gameInitiator;
-        private TextView photosLeft;
+        private TextView photosLeft; //textview that showes how much photos left to add
 
-        private Player currentPlayer;
+        private Player currentPlayer; 
         private string gameid;
 
         private Thread changes;
-        private bool stopThread = false;
+        private bool stopThread = false; //flag to stop the thread
 
         private int picturesLeftCount;
 
@@ -119,7 +119,7 @@ namespace GuessThePicBeta9
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
 
-        public async void OnClick(View v)
+        public async void OnClick(View v) //detects and deals with button presses
         {
             Intent intent;
             Button b = (Button)v;
@@ -153,7 +153,7 @@ namespace GuessThePicBeta9
                 //FirebaseActions.StartGame();
             }
         }
-        private async void QuitToMainMenu()
+        private async void QuitToMainMenu() //function that gets out of the lobby
         {
             Intent intent;
             stopThread = true;
@@ -162,7 +162,7 @@ namespace GuessThePicBeta9
             base.StartActivity(intent);
         }
 
-        public void DisableStartGameButton()
+        public void DisableStartGameButton() 
         {
             startGameButton.Clickable = false;
             startGameButton.SetTextColor(Android.Graphics.Color.DarkRed);
@@ -173,7 +173,7 @@ namespace GuessThePicBeta9
             startGameButton.SetTextColor(Android.Graphics.Color.Black);
         }
 
-        public async Task<bool> ReturnToMainMenuActions()
+        public async Task<bool> ReturnToMainMenuActions() //actions that perform onces a player chooses to quit to main menu
         {
             stopThread = true;
             if (currentPlayer.isAdmin)
@@ -230,7 +230,7 @@ namespace GuessThePicBeta9
                 {
                     return new Image(bytes, currentPlayer.name);
                 }
-            }
+            } 
             return null;
         }
 
@@ -239,13 +239,7 @@ namespace GuessThePicBeta9
             if (currentPlayer.isAdmin)
                 return ViewStates.Visible;
             return ViewStates.Gone;
-        }
-
-        private void SetPlayerListView()
-        {
-
-        }
-        
+        }        
         public void GenerateGameID()
         {
             string id = gameInitiator.GetNewGameID();
@@ -391,4 +385,4 @@ namespace GuessThePicBeta9
             p.Show();
         }
     }
-}
+}   
