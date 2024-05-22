@@ -35,6 +35,10 @@ namespace GuessThePicBeta9
         {
             this.CurrentImageIndex++;
         }
+        public void SetImage(int round)
+        {
+            this.CurrentImageIndex = round;
+        }
         public Image GetCurrentImage()
         {
             return CurrentImage;

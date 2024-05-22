@@ -86,10 +86,13 @@ namespace GuessThePicBeta9
                 ReadyPlayersThread.Start();
             }
                 
-                
-
-            //changes = new Thread(CheckForChanges);
-            //changes.Start();
+            
+        }
+        protected override void OnDestroy()
+        {
+            ReturnToMainMenuActions();
+            Toast.MakeText(this, $"in the func", ToastLength.Short).Show();
+            base.OnDestroy();
         }
         public override void OnBackPressed() //Disables the back button
         {
@@ -145,6 +148,8 @@ namespace GuessThePicBeta9
                 temp.ScambleImageList();
                 await temp.SetCurrentImage();
 
+                FirebaseActions.SetRoundNum(1);
+                
                 await FirebaseActions.UploadGamesEngine(temp);
                 FirebaseActions.StartGameEngineDownload();
 
@@ -342,7 +347,7 @@ namespace GuessThePicBeta9
         {
             while (!stopThread)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(300);
                 if (stopThread)
                 {
                     break;

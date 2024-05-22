@@ -46,6 +46,8 @@ namespace GuessThePicBeta9
             {
                 imageb.SetImageResource(Resource.Drawable.soff);
             }
+            CurrentPlayer.DeletePlayerInstance();
+            GameEngineSingleton.DeleteInstance();
         }
 
         private async void RequestPrem(object sender, EventArgs e) //checks if the user gives the app premission to use his pictures. 

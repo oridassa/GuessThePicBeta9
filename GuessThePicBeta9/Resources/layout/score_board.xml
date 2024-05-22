@@ -32,4 +32,20 @@
         android:id="@+id/score"
         android:gravity="center"
         />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:gravity="center|bottom"
+        android:orientation="vertical">
+            <Button
+                android:layout_width="300dp"
+                android:layout_height="60dp"
+                android:text="Go to Main Menu"
+                android:onClick="onClick"
+                android:id="@+id/menuButton"
+                android:visibility="gone"
+                android:backgroundTint="@android:color/holo_green_dark"
+            />
+    </LinearLayout>
 </LinearLayout>

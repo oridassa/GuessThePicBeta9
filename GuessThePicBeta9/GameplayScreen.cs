@@ -72,8 +72,9 @@ namespace GuessThePicBeta9
 
             // Start the progress bar update thread
             var thread = new Thread(UpdateProgressBar);
-            thread.Start();
-
+            thread.Start();  
+            
+            SetNextImage();
         }
         public override void OnBackPressed() //Disables the back button
         {
@@ -100,7 +101,11 @@ namespace GuessThePicBeta9
 
             // After 5 seconds, post the function to be executed on the UI thread
             if (CurrentPlayer.playerPointer.isAdmin)
-                FirebaseActions.SetMoveToNextRoundFalse();
+            {
+                //FirebaseActions.SetMoveToNextRoundFalse();
+                FirebaseActions.SetRoundNum(0);
+            }
+                
 
             FirebaseActions.UploadNamePointsString();
 

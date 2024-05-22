@@ -41,32 +41,39 @@ namespace GuessThePicBeta9
             }
             else if (b.Text == "Join Game")
             {
-                string gameID = gameidinput.Text.ToString();
-                CreateProgressDialog();
-                bool isGameIOnline = await FirebaseActions.IsGameOnline(gameID);
-                if (!isGameIOnline) 
+                try
                 {
-                    CloseProgressDialog();
-                    Toast.MakeText(this, "The Game Is Not Active", ToastLength.Short).Show();
-                    return;
+                    string gameID = gameidinput.Text.ToString();
+                    CreateProgressDialog();
+                    bool isGameIOnline = await FirebaseActions.IsGameOnline(gameID);
+                    if (!isGameIOnline)
+                    {
+                        CloseProgressDialog();
+                        Toast.MakeText(this, "The Game Is Not Active", ToastLength.Short).Show();
+                        return;
+                    }
+                    else if (!(await FirebaseActions.CanConnectToLobby(gameID, CurrentPlayer.name)))
+                    {
+                        CloseProgressDialog();
+                        Toast.MakeText(this, "Can't Connect To This Game", ToastLength.Short).Show();
+                        return;
+                    }
+                    else //this is when there is an active game
+                    {
+                        await FirebaseActions.GameSetup(gameID);
+                        GameEngine inportedGameEngine = await FirebaseActions.GetGameEngine(); //gets the gameEngine great!!!!!
+
+                        GameEngineSingleton.SetInstance(inportedGameEngine);
+
+                        FirebaseActions.AddPlayerToLobby(CurrentPlayer.playerPointer);
+
+                        intent = new Intent(this, typeof(GameLobbyHost));
+                        base.StartActivity(intent);
+                    }
                 }
-                else if(!(await FirebaseActions.CanConnectToLobby(gameID)))
+                catch(System.Exception ex)
                 {
-                    CloseProgressDialog();
                     Toast.MakeText(this, "Can't Connect To This Game", ToastLength.Short).Show();
-                    return;
-                }
-                else //this is when there is an active game
-                {
-                    await FirebaseActions.GameSetup(gameID);
-                    GameEngine inportedGameEngine = await FirebaseActions.GetGameEngine(); //gets the gameEngine great!!!!!
-                    
-                    GameEngineSingleton.SetInstance(inportedGameEngine);
-
-                    FirebaseActions.AddPlayerToLobby(CurrentPlayer.playerPointer);
-
-                    intent = new Intent(this, typeof(GameLobbyHost));
-                    base.StartActivity(intent);
                 }
             }
         }

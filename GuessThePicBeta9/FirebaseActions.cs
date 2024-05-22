@@ -21,6 +21,7 @@ using static Java.Util.Jar.Attributes;
 using static Android.Graphics.ColorSpace;
 using Java.Nio.FileNio;
 using AndroidX.Interpolator.View.Animation;
+using Firebase.Database.Offline;
 
 
 namespace GuessThePicBeta9
@@ -382,12 +383,33 @@ namespace GuessThePicBeta9
                 .PutAsync<bool>(true);
         }
 
-        public static async Task<bool> CanConnectToLobby(string gameID) //checking if a player can connect to a lobby by GameID
+        public static async Task<bool> CanConnectToLobby(string gameID, string playersName) //checking if a player can connect to a lobby by GameID
         {
             ChildQuery tempPointer = firebaseClient.Child("Games").Child(gameID);
             if (await tempPointer.Child("IsLobbyOn").OnceSingleAsync<bool>() == false) return false;
             if (await tempPointer.Child("DownloadGameEngine").OnceSingleAsync<bool>() == true) return false;
+            string[] playersArray = await GetNumberOfPlayersInLobby(tempPointer);
+            if (playersArray.Length >= 8) return false;
+            if (playersArray.Contains(playersName)) return false;
             return true; //otherwise 
+        }
+        private static async Task<string[]> GetNumberOfPlayersInLobby(ChildQuery tempPointer)
+        {
+            Dictionary<string, Player> players = null;
+            if (tempPointer != null)
+                players = await tempPointer
+                        .Child("GameEngine")
+                        .Child("Players").OnceSingleAsync<Dictionary<string, Player>>();
+
+            return players.Keys.ToArray<string>();
+        }
+        public static async Task<int> GetRoundNum()
+        {
+            return await pointer.Child("RoundNum").OnceSingleAsync<int>();
+        }
+        public static async void SetRoundNum(int num = 0)
+        {
+             await pointer.Child("RoundNum").PutAsync<int>(num);
         }
     }
 }
