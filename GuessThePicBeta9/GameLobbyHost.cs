@@ -280,23 +280,18 @@ namespace GuessThePicBeta9
         {
             while (!stopThread)
             {
-                if (stopThread)
-                {
-                    break;
-                }
                 bool shouldDownloadGameEngine = false;
-                if (!stopThread)
+
+                SetPlayersList();
+                shouldDownloadGameEngine = await FirebaseActions.ShouldDownloadGameEngine();
+                if (shouldDownloadGameEngine)
                 {
-                    SetPlayersList();
-                    shouldDownloadGameEngine = await FirebaseActions.ShouldDownloadGameEngine();
-                    if (shouldDownloadGameEngine)
-                    {
-                        stopThread = true;
-                        DownloadGameEngine();
-                        CreateProgressDialog("Starting...");
-                        return;
-                    }
+                    stopThread = true;
+                    DownloadGameEngine();
+                    CreateProgressDialog("Starting...");
+                    return;
                 }
+                
                 if(!currentPlayer.isAdmin)
                 {
                     if (!(await FirebaseActions.IsLobbyOn()))
@@ -361,7 +356,7 @@ namespace GuessThePicBeta9
                     {
                         EnableStartGameButton();
                     }
-                    else
+                    else  
                         DisableStartGameButton();
                 }
             }

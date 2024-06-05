@@ -39,7 +39,7 @@ namespace GuessThePicBeta9
         }
         public static async Task<bool> GameSetup(string gameID, GameEngine gameEngine = null) //sets up all of the flags for the game
         {
-            SetDatabasePointer(gameID);
+                SetDatabasePointer(gameID);
             if (CurrentPlayer.playerPointer.isAdmin == true)
             {
                 await pointer.Child("GameStarted").PutAsync(false);

@@ -52,21 +52,22 @@ namespace GuessThePicBeta9
                 loopLength = 2000;
                 SetFinaleScreen();
             }
-            
+
 
             await SetScoreBoard();
 
 
-            if(CurrentPlayer.playerPointer.isAdmin)
-            {
-                var thread = new Thread(HostTimerControl);
-
-                thread.Start();
-            }
-            
-
             if (!gameEngine.IsLastImage())
+            {
+                if (CurrentPlayer.playerPointer.isAdmin)
+                {
+                    var thread = new Thread(HostTimerControl);
+
+                    thread.Start();
+                }
                 WaitForNextRound();
+            }
+        
             else
             {
                 menuButton.Visibility = ViewStates.Visible;
@@ -103,7 +104,7 @@ namespace GuessThePicBeta9
                 round = await FirebaseActions.GetRoundNum();
             }
             NextScreen(round);
-        }
+        } 
         public void NextScreen(int round) //whats happen when the scoreboard screen ends
         {
             if (gameEngine.IsLastImage())
@@ -137,11 +138,15 @@ namespace GuessThePicBeta9
         public async void FinishGame() //if its the last scoreboard
         {
             if (CurrentPlayer.playerPointer.isAdmin) await FirebaseActions.KillLobby();
-            //CurrentPlayer.DeletePlayerInstance();
-            //GameEngineSingleton.DeleteInstance();
+            else FirebaseActions.ExitFromLobby(CurrentPlayer.name);
+
+            GameEngineSingleton.DeleteInstance();
+            CurrentPlayer.DeletePlayerInstance();
+
             Android.Content.Intent intent = new Android.Content.Intent(this, typeof(MainActivity));
             base.StartActivity(intent);
         }
+
         public void SetRoundCounter()
         {
             roundCounter.Text = $"Score : Round {gameEngine.GetRoundNum()}";
